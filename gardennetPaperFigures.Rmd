@@ -1,0 +1,576 @@
+---
+title: "Examples of ChAseR applied to BLUEPRINT EPIVAR data"
+output: html_notebook
+---
+```{r}
+
+## ----eval=FALSE----------------------------------------------------------
+  #library(devtools)
+  #devtools::install_bitbucket("eraineri/chaser", build_opts=c(), force=T)
+
+library(chaser)
+##Define paths:
+netpath='/home/vera/BACKUP_HomeCNIO_August2017/Vera/Blueprint_Dani/PChiC/BP/PCHiCdataBP'
+featurepath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/BPfeatures'
+figurespath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Figures/GeneratedFigures'
+```
+
+```{r}
+
+#######Set up PCHiC contact networks from Javierre et al. Cell 2016
+bp=read.table(paste(netpath,'merged_samples_12Apr2015_full.txt', sep='/'), sep='\t', skip=4, header=T)
+bp[,1]=paste('chr', bp[,1], sep='')
+bp[,6]=paste('chr', bp[,6], sep='')
+
+
+bpmono_forchaser=bp[which(bp$Monocytes>=5),c(1,2,3,6,7,8)]
+bpneu_forchaser=bp[which(bp$Neutrophils>=5),c(1,2,3,6,7,8)]
+bpt_forchaser=bp[which(rowMeans(bp[,c(21:26)])>=5),c(1,2,3,6,7,8)]
+
+mononet=chaser::make_chromnet(bpmono_forchaser)
+neunet=chaser::make_chromnet(bpneu_forchaser)
+tnet=chaser::make_chromnet(bpt_forchaser)
+
+```
+
+Load histone modification data from Chen et al. 2016
+
+```{r}
+
+epivar_path='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Ngoc/Ngoc/epivar_data'
+
+lf=list.files(epivar_path)
+lf=lf[grep('bed', lf)]
+lfpatients=sapply(lf, function(x){
+  return(unlist(strsplit(x, split='\\.'))[1])
+})
+
+info=read.table(paste(epivar_path,'Blueprint_Epivar_public_results_release.index', sep='/'), sep='\t', header=T)
+neutros=as.vector(info$SAMPLE_NAME[which(info$CELL_TYPE=='mature neutrophil')])
+monos=as.vector(info$SAMPLE_NAME[which(info$CELL_TYPE=='CD14-positive, CD16-negative classical monocyte')])
+CD4T=as.vector(info$SAMPLE_NAME[which(info$CELL_TYPE=='CD4-positive, alpha-beta T cell')])
+
+sampleslist=list(monos, neutros, CD4T)
+names(sampleslist)=c('monos', 'neutros', 'Tcells')
+colsc=c('red', 'blue', 'darkgreen')
+names(colsc)=c('monos', 'neutros', 'Tcells')
+
+###Load netbp with all features or load separately here
+#j=0
+#for (i in lf[sel]){
+#  print(paste('################################################',j))
+#fi=paste(epivar_path,i, sep='/')
+#  namesvec=unlist(strsplit(i, split='\\.'))
+#    br=grep('broad',i)>0
+#  names=paste(namesvec[1],namesvec[2],as.numeric(br), sep='_')
+#  netbp <- load_features(netbp,fi,type='macs2',featname = names, missingv=0)
+#  j=j+1
+#}
+#saveRDS(netbp, file = "/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/BPfeatures/netbp_chenfeats.rds")
+
+netbp=readRDS('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/BPfeatures/netbp_chenfeats.rds')
+netbpfeat=export(netbp)
+
+samples=sapply(colnames(netbpfeat), function(x){
+  return(unlist(strsplit(x, split='_'))[1])
+})
+
+
+```
+Make chromnets with histone modification features
+
+```{r}
+#########################
+#########################
+#########################
+#########################
+###Neutrophils
+
+chromneunet=chaser::make_chromnet(bpneu_forchaser, features=netbpfeat)
+
+#extract promoter bait nodes
+baits <- export(chromneunet, 'baits')
+# extract other ends
+nodes=export(chromneunet, "nodes")$name
+oes=nodes[-which(nodes %in% baits)]
+
+
+chromneunet_bb<-chaser::subset_chromnet(chromneunet, method="nodes", nodes1=baits)
+chromneunet_bbfeat=export(chromneunet_bb)
+chromneunet_bbchas=chas(chromneunet_bb)
+
+chromneunet_bo<-chaser::subset_chromnet(chromneunet, method="nodes", nodes1=baits, nodes2=oes)
+chromneunet_bofeat=export(chromneunet_bo)
+chromneunet_bochas=chas(chromneunet_bo)
+```
+
+```{r}
+###Monocytes
+
+chrommononet=chaser::make_chromnet(bpmono_forchaser, features=netbpfeat)
+
+#extract promoter bait nodes
+baits <- export(chrommononet, 'baits')
+# extract other ends
+nodes=export(chrommononet, "nodes")$name
+oes=nodes[-which(nodes %in% baits)]
+
+
+chrommononet_bb<-chaser::subset_chromnet(chrommononet, method="nodes", nodes1=baits)
+chrommononet_bbfeat=export(chrommononet_bb)
+chrommononet_bbchas=chas(chrommononet_bb)
+
+chrommononet_bo<-chaser::subset_chromnet(chrommononet, method="nodes", nodes1=baits, nodes2=oes)
+chrommononet_bofeat=export(chrommononet_bo)
+chrommononet_bochas=chas(chrommononet_bo)
+```
+
+```{r}
+###Tcells
+chromtnet=chaser::make_chromnet(bpt_forchaser, features=netbpfeat)
+
+#extract promoter bait nodes
+baits <- export(chromtnet, 'baits')
+# extract other ends
+nodes=export(chromtnet, "nodes")$name
+oes=nodes[-which(nodes %in% baits)]
+
+
+chromtnet_bb<-chaser::subset_chromnet(chromtnet, method="nodes", nodes1=baits)
+chromtnet_bbfeat=export(chromtnet_bb)
+chromtnet_bbchas=chas(chromtnet_bb)
+
+chromtnet_bo<-chaser::subset_chromnet(chromtnet, method="nodes", nodes1=baits, nodes2=oes)
+chromtnet_bofeat=export(chromtnet_bo)
+chromtnet_bochas=chas(chromtnet_bo)
+```
+Plots ChAs PO vs PP (Figure 2A-D) and Supp Figs S2
+
+```{r}
+##Plot Neutrophils
+pdf(paste(figurespath,'HistmodsNeutros_ChAsPO_vs_PP.pdf', sep='/'), width=8, height= 8)
+par(mfrow=c(2,2))
+
+for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
+
+  print(h)
+    sel=intersect( grep(h, colnames(chromneunet_bofeat)), which(samples %in% sampleslist[['neutros']]))
+   # sel1=sel[grep('S00H5QH1',sel)]
+  #  print(names(neunet_bochas[sel[sel1]]))
+    print(length(sel))
+    if (length(sel)>0){
+    plot(chromneunet_bbchas[sel],chromneunet_bochas[sel], pch=21,bg='blue', xlab='ChAs PP', ylab='ChAs PO', main=h, xlim=c(0, 0.5), ylim=c(-0.3,0.6),  cex.axis=1.2 )
+     
+      
+    abline(a=0, b=1)
+    abline(h=0)
+    }
+}
+dev.off()
+
+#Plot Moncytes and Tcells
+#pdf(paste(figurespath,'Suppfigs/HistmodsMonoTcells_ChAsPO_vs_PP.pdf', sep='/'), width=8, height= 8)
+png(paste(figurespath,'Suppfigs/HistmodsMonoTcells_ChAsPO_vs_PP.png', sep='/'))
+
+par(mfrow=c(2,2))
+
+for (h  in c( 'H3K4me1', 'H3K27ac')){
+
+  print(h)
+    sel=intersect( grep(h, colnames(chrommononet_bofeat)), which(samples %in% sampleslist[['monos']]))
+      print(length(sel))
+    if (length(sel)>0){
+    plot(chrommononet_bbchas[sel],chrommononet_bochas[sel], pch=21,bg='red', xlab='ChAs PP', ylab='ChAs PO', main=paste('Monocytes ',h), xlim=c(0.1, 0.3), ylim=c(-0.1,0.3),  cex.axis=1.2)
+     
+      
+    abline(a=0, b=1)
+    abline(h=0)
+    }
+}
+for (h  in c( 'H3K4me1', 'H3K27ac')){
+
+  print(h)
+    sel=intersect( grep(h, colnames(chrommononet_bofeat)), which(samples %in% sampleslist[['Tcells']]))
+      print(length(sel))
+    if (length(sel)>0){
+    plot(chromtnet_bbchas[sel],chromtnet_bochas[sel], pch=21,bg='darkgreen', xlab='ChAs PP', ylab='ChAs PO', main=paste('Tcells ',h), xlim=c(0, 0.3), ylim=c(-0.1,0.3),  cex.axis=1.2)
+     
+      
+    abline(a=0, b=1)
+    abline(h=0)
+    }
+}
+dev.off()
+```
+Plots ChAs vs abundance 
+```{r}
+#pdf(paste(figurespath,'SuppFigs/HistmodsNeutros_ChAsvsAb_PP.pdf', sep='/'), width=8, height= 8)
+png(paste(figurespath,'SuppFigs/HistmodsNeutros_ChAsvsAb_PP.png', sep='/'))
+par(mfrow=c(2,2))
+for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
+  print(h)
+    sel=intersect( grep(h, colnames(chromneunet_bofeat)), which(samples %in% sampleslist[['neutros']]))
+   # sel1=sel[grep('S00H5QH1',sel)]
+  #  print(names(neunet_bochas[sel[sel1]]))
+    print(length(sel))
+    if (length(sel)>0){
+    plot(chromneunet_bbfeat[sel],chromneunet_bbchas[sel], pch=21,bg='blue', xlab='Abundance PP', ylab='ChAs PP', main=h, xlim=c(0,0.6),  cex.axis=1.2 )
+      
+    }
+}
+dev.off()
+```
+
+Randomizations of histone mods 
+```{r}
+###Randomization
+rchromneunet_bb <- chaser::randomize(chromneunet_bb, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rchromneunet_bbchas <-lapply(rchromneunet_bb, chas)
+rchromneunet_bbfeat <-lapply(rchromneunet_bb, export)
+
+```
+
+```{r}
+
+#pdf(paste(figurespath,'Histmods_NeuRandDist_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Histmods_NeuRandDist_abchas.png', sep='/'))
+
+par(mfrow=c(2,2))
+for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
+  print(h)
+    sel=intersect( grep(h, colnames(chromneunet_bofeat)), which(samples %in% sampleslist[['neutros']]))
+   # sel1=sel[grep('S00H5QH1',sel)]
+  #  print(names(neunet_bochas[sel[sel1]]))
+    print(length(sel))
+    mycols=rainbow(length(sel))
+
+
+    if (length(sel)>0){
+      plot(colMeans(rchromneunet_bbfeat[[1]])[sel],rchromneunet_bbchas[[1]][sel], pch='.', xlim=c(0,1), ylim=c(-0.1,0.5), col=mycols, xlab='Mean Abundance PP',     
+           ylab='ChAs PP ', main=paste('Neutrophils ',h)) 
+      for (i in 2:50){
+      points(colMeans(rchromneunet_bbfeat[[i]])[sel],rchromneunet_bbchas[[i]][sel], pch='.',col=mycols) 
+      }
+      points(colMeans(chromneunet_bbfeat)[sel], chromneunet_bbchas[sel],  pch=20, col=mycols)
+    }
+}
+dev.off()
+
+```
+
+
+
+
+Load methylation features from EPIVAR, Chen et al. Cell 2016
+
+```{r}
+metdatapath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/BPfeatures/'
+
+###Monocytes
+metmono<-readRDS(paste(metdatapath,'monocytes-meth-feature-table.rds', sep='/'))
+
+netmetmono<-chaser::make_chromnet(bpmono_forchaser)
+netmetmono<-chaser::load_features(netmetmono, metmono,auxfun='mean',  type='features_table', missingv=NA, featname=colnames(metmono))
+
+#extract promoter bait nodes
+baits <- export(netmetmono, 'baits')
+# extract other ends
+nodes=export(netmetmono, "nodes")$name
+oes=nodes[!which(nodes %in% baits)]
+
+
+#write.table(rowMeans(metemamono),paste(featurepath, 'EPIVARMethylationMono.txt', sep='/'), quote=F, sep='\t')
+netmetmono_bb<- chaser::subset_chromnet(netmetmono, method="nodes", nodes1=baits)
+##Remove from network the nodes that do not have features
+netmetmono_bbcomp<-subset_chromnet(netmetmono_bb, 'complete')
+netmetmono_bbchas=chas(netmetmono_bbcomp)
+netmetmono_bbfeat=export(netmetmono_bbcomp)
+
+###Neutrophils
+metneu<-readRDS(paste(metdatapath,'neutrophils-meth-feature-table.rds', sep='/'))
+
+netmetneu<-chaser::make_chromnet(bpneu_forchaser)
+netmetneu<-chaser::load_features(netmetneu, metneu, auxfun='mean', type='features_table', missingv=NA, featname=colnames(metneu))
+
+#extract promoter bait nodes
+baits <- export(netmetneu, 'baits')
+# extract other ends
+nodes=export(netmetneu, "nodes")$name
+oes=nodes[-which(nodes %in% baits)]
+
+#write.table(rowMeans(metemaneu), paste(featurepath, 'EPIVARMethylationneu.txt', sep='/'), quote=F, sep='\t')
+netmetneu_bb<- chaser::subset_chromnet(netmetneu, method="nodes", nodes1=baits)
+netmetneu_bbcomp=subset_chromnet(netmetneu_bb, 'complete')
+netmetneu_bbchas=chas(netmetneu_bbcomp)
+netmetneu_bbfeat=export(netmetneu_bbcomp)
+```
+
+Randomization of methylation values preserving distance (Figure 2E)
+```{r}
+##Randomization on neutrophil network
+rnetmetneu_bbcomp <- chaser::randomize(netmetneu_bbcomp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rnetmetneu_bbchas <-lapply(rnetmetneu_bbcomp, chas)
+rnetmetneu_bbfeat=lapply(rnetmetneu_bbcomp, export)
+
+mycols=rainbow(ncol(netmetneu_bbfeat))
+
+pdf(paste(figurespath, 'Epivar_Met_NeuRandDist_abchas.pdf', sep='/'))
+plot(colMeans(rnetmetneu_bbfeat[[1]]),rnetmetneu_bbchas[[1]], pch='.', ylim=c(0.0,0.23),xlim=c(0.34, 0.37), col=mycols, xlab='Mean methylation Neutrophils', ylab='ChAs on PP network') 
+for (i in 2:50){
+ points(colMeans(rnetmetneu_bbfeat[[i]]),rnetmetneu_bbchas[[i]], pch='.',col=mycols) 
+}
+points(colMeans(netmetneu_bbfeat), netmetneu_bbchas,  pch=20, col=mycols)
+dev.off()
+```
+More detailed analyses on a single individual (Figures 2F-G)
+```{r}
+library(ggplot2)
+library(ggExtra)
+ 
+##Neutrophils
+#export scatterplot for 1 individual
+netmetneu_bbscatter=export(netmetneu_bbcomp, type='scatterplot', featname='S000GZ')
+
+p<-ggplot(data = netmetneu_bbscatter, aes(fi, fj)) +   stat_density2d(aes(fill = ..density..^0.25), geom = "tile", contour = FALSE, n = 200) +   scale_fill_continuous(low = "white", high = "dodgerblue4") +theme_classic() +geom_density_2d(colour='black')+ xlab('Methylation on node i')+ylab('Methylation on node j')
+plot(p)
+ggsave(paste(figurespath, 'Methylation_neutrophil_onesubject.pdf', sep='/'), height=5, width=6)
+
+##Produce violin plot for 1 individual
+netmetneubbcorr <- chaser::chas(netmetneu_bbcomp, method="corr_fun")
+netmetneubballcorr <- chaser::chas(netmetneu_bb, method="corr_fun")
+
+netmetneu_bballfeat=export(netmetneu_bb)
+
+cf<- cut(netmetneu_bbfeat[,'S000GZ'], seq(0,1,by=0.25), include.lowest=T)
+y <- netmetneubbcorr[,'S000GZ']
+
+daf <- data.frame(y=y, Methylation=cf)
+library(Hmisc)
+p <- ggplot2::ggplot(daf, aes(Methylation, y, fill='red'))
+p <- p + ggplot2::geom_violin()
+p <- p + theme(axis.line = element_line(colour = "black"),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+               panel.background = element_blank(),
+              legend.position='none',
+              axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=14),
+              axis.title.x=element_text(size=14),
+              axis.title.y=element_text(size=14))
+p <- p + xlab("Methylation at a promoter bait")
+p <- p + ylab("Average methylation at neighbouring promoters")
+p<-p + stat_summary(fun.data=mean_sdl,      geom="pointrange", color="black")
+plot(p)
+ggplot2::ggsave(paste(figurespath, 'Methylation_Neutrophil_1subject_correVioplot.pdf', sep='/'))
+```
+
+
+
+
+Expression Data
+```{r}
+expdatapath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Ngoc/Ngoc/epivar_data/Expression/'
+biomartpath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/common/forGARDEN-NET/biomart/'
+
+monoexp=read.table(paste(expdatapath,'mono_gene_nor_combat_20151109.txt_sort', sep='/'), sep='\t', header=T)
+neutroexp=read.table(paste(expdatapath,'neut_gene_nor_combat_20151109.txt_sort', sep='/'), sep='\t', header=T)
+texp=read.table(paste(expdatapath,'tcel_gene_nor_combat_20151109.txt_sort',sep='/'), sep='\t', header=T)
+
+## Read expression data and process it to assign expression to all bait fragments
+conv=read.delim(paste(biomartpath,'BLUEPRINT_fragments_good.tsv', sep='/'), sep='\t')
+
+monoexp_pro=monoexp
+monoexp_pro[,1]=sapply(as.vector(monoexp_pro[,1]),function(x){
+  res=x
+  if (grep('\\.', x)){
+    vec=unlist(strsplit(x, split='\\.'))
+    res=vec[1]
+  }  
+  return(res)
+})
+neuexp_pro=neutroexp
+neuexp_pro[,1]=sapply(as.vector(neuexp_pro[,1]),function(x){
+  res=x
+  if (grep('\\.', x)){
+    vec=unlist(strsplit(x, split='\\.'))
+    res=vec[1]
+  }  
+  return(res)
+})
+texp_pro=texp
+texp_pro[,1]=sapply(as.vector(texp_pro[,1]),function(x){
+  res=x
+  if (grep('\\.', x)){
+    vec=unlist(strsplit(x, split='\\.'))
+    res=vec[1]
+  }  
+  return(res)
+})
+
+rownames(monoexp_pro)=monoexp_pro[,1]
+rownames(neuexp_pro)=neuexp_pro[,1]
+rownames(texp_pro)=texp_pro[,1]
+
+convpro=data.frame(paste('chr',conv$chr, ':', conv$start, '-', conv$end, sep=''), conv$ensembl)
+rownames(convpro)=convpro[,1]
+colnames(convpro)[2]='ens.id'
+
+m=merge( convpro,monoexp_pro, by='ens.id', all.x=F, all.y=F)
+rownames(m)=m[,2]
+m=m[,-c(1,2)]
+m=data.frame(m, rowMeans(m))
+
+n=merge( convpro,neuexp_pro, by='ens.id', all.x=F, all.y=F)
+rownames(n)=n[,2]
+n=n[,-c(1,2)]
+n=data.frame(n, rowMeans(n))
+
+t=merge( convpro,texp_pro, by='ens.id', all.x=F, all.y=F)
+rownames(t)=t[,2]
+t=t[,-c(1,2)]
+t=data.frame(t, rowMeans(t))
+
+##Extract PP subnetworks
+mononetbb <- chaser::subset_chromnet(mononet, method="nodes", nodes1=baits)
+neunetbb <- chaser::subset_chromnet(neunet, method="nodes", nodes1=baits)
+tnetbb <- chaser::subset_chromnet(tnet, method="nodes", nodes1=baits)
+
+##Add features
+mononetbbexp <- load_features(mononetbb,m,type='features_on_nodes',featname = colnames(m), missingv=0)
+mononetbbexpchas=chas(mononetbbexp)
+mononetbbexpfeat=export(mononetbbexp)
+
+neunetbbexp <- load_features(neunetbb,m,type='features_on_nodes',featname = colnames(m), missingv=0)
+neunetbbexpchas=chas(neunetbbexp)
+neunetbbexpfeat=export(neunetbbexp)
+
+tnetbbexp <- load_features(tnetbb,m,type='features_on_nodes',featname = colnames(m), missingv=0)
+tnetbbexpchas=chas(tnetbbexp)
+tnetbbexpfeat=export(tnetbbexp)
+
+```
+Expression supplementary figures showing ChAs vs abundance in 3 cell types 
+```{r}
+pdf(paste(figurespath,'SuppFigs/Epivar_Monoexp_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Epivar_Monoexp_abchas.png', sep='/'))
+
+plot(colMeans(mononetbbexpfeat), mononetbbexpchas, xlab="exp ab",
+     ylab='chas PP', axes=FALSE,   pch=20, main='Monocytes', col='red')
+axis(1)
+axis(2)
+dev.off()
+pdf(paste(figurespath,'SuppFigs/Epivar_Neuexp_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Epivar_Neuexp_abchas.png', sep='/'))
+plot(colMeans(neunetbbexpfeat), neunetbbexpchas, xlab="exp ab",
+   ylab='chas PP',  pch=20, col='blue', main='Neutrophils')
+axis(1)
+axis(2)
+dev.off()
+pdf(paste(figurespath,'SuppFigs/Epivar_Tcellexp_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Epivar_Tcellexp_abchas.png', sep='/'))
+plot(colMeans(tnetbbexpfeat), tnetbbexpchas, xlab="exp ab",
+   ylab='chas PP',   pch=20, col='darkgreen', main='Tcells')
+axis(1)
+axis(2)
+dev.off()
+```
+Randomizations preserving distance Figure 2H
+```{r}
+
+###Neutrophils
+rneuexp <- chaser::randomize(neunetbbexp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rneuexp_chas <-lapply(rneuexp, chas)
+rneuexp_feat=lapply(rneuexp, export)
+```
+
+```{r}
+mycols=rainbow(ncol(neunetbbexpfeat))
+pdf(paste(figurespath,'Epivar_Neuexp_RandDist_abchas.pdf', sep='/'))
+plot(colMeans(rneuexp_feat[[1]]),rneuexp_chas[[1]], pch='.', ylim=c(0.02,0.13), xlim=c(3.1,3.25),col=mycols, xlab='Mean expression Neutrophils', ylab='ChAs on PP network') 
+for (i in 2:50){
+ points(colMeans(rneuexp_feat[[i]]),rneuexp_chas[[i]], pch='.',col=mycols) 
+}
+points(colMeans(neunetbbexpfeat), neunetbbexpchas,  pch=20, col=mycols)
+dev.off()
+```
+Randomization of expression for monocytes and tcells preserving distances (Supp Figures S3)
+```{r}
+##Monocytes
+rmonoexp <- chaser::randomize(mononetbbexp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rmonoexp_chas <-lapply(rmonoexp, chas)
+rmonoexp_feat=lapply(rmonoexp, export)
+
+mycols=rainbow(ncol(mononetbbexpfeat))
+pdf(paste(figurespath,'SuppFigs/Epivar_exp_MonoRandDist_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Epivar_exp_MonoRandDist_abchas.png', sep='/'))
+
+plot(colMeans(rmonoexp_feat[[1]]),rmonoexp_chas[[1]], pch='.', ylim=c(0.02,0.13),xlim=c(3.25,3.35), col=mycols, xlab='Mean expression Monocytes', ylab='ChAs on PP network') 
+for (i in 2:50){
+ points(colMeans(rmonoexp_feat[[i]]),rmonoexp_chas[[i]], pch='.',col=mycols) 
+}
+points(colMeans(mononetbbexpfeat), mononetbbexpchas,  pch=20, col=mycols)
+dev.off()
+
+
+
+###Tcells
+rtexp <- chaser::randomize(tnetbbexp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rtexp_chas <-lapply(rtexp, chas)
+rtexp_feat=lapply(rtexp, export)
+
+mycols=rainbow(ncol(tnetbbexpfeat))
+pdf(paste(figurespath,'SuppFigs/Epivar_exp_TcellRandDist_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Epivar_exp_TcellRandDist_abchas.png', sep='/'))
+
+plot(colMeans(rtexp_feat[[1]]),rtexp_chas[[1]], pch='.', ylim=c(0.02,0.13),xlim=c(3.27, 3.36), col=mycols, xlab='Mean expression Tcells', ylab='ChAs on PP network') 
+for (i in 2:50){
+ points(colMeans(rtexp_feat[[i]]),rtexp_chas[[i]], pch='.',col=mycols) 
+}
+points(colMeans(tnetbbexpfeat), tnetbbexpchas,  pch=20, col=mycols)
+dev.off()
+```
+Randomization not preserving distance 
+```{r}
+
+###Randomization not preserving distance
+###Now do randomization with permutations, not preserving ditance 
+rpneuexp <- chaser::randomize(neunetbbexp, nrandom=100, preserve.nodes = NULL,dist.match = F)
+rpneuexp_chas <-lapply(rpneuexp, chas)
+rpneuexp_feat=lapply(rpneuexp, export)
+
+mycols=rainbow(ncol(neunetbbexpfeat))
+
+```
+
+```{r}
+pdf(paste(figurespath,'SuppFigs/Epivar_exp_neuRand_abchas.pdf', sep='/'))
+png(paste(figurespath,'SuppFigs/Epivar_exp_neuRand_abchas.png', sep='/'))
+
+plot(colMeans(rpneuexp_feat[[1]]),rpneuexp_chas[[1]], pch='.', col=mycols, ylim=c(-0.05,0.15),xlim=c(3.1, 3.25),  xlab='Mean expression neutrophils', ylab='ChAs on PP network', axes=F) 
+for (i in 2:50){
+ points(colMeans(rpneuexp_feat[[i]]),rpneuexp_chas[[i]], pch='.', col=mycols) 
+}
+points(colMeans(neunetbbexpfeat), neunetbbexpchas,  pch=21, bg=mycols)
+axis(1)
+axis(2)
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
