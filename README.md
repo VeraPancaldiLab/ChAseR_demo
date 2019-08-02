@@ -1,5 +1,5 @@
 # ChAseR_demo
-This workbook contains code to reproduce the figures of the paper 'GARDEN-NET and ChAseR: a suite of tools for the analysis of chromatin networks' showing examples of the usage of the ChAseR package on Promoter Capture HiC data for haematopoietic cells  (Javierre et al. Cell 2016) in integration with gene expression, methylation and histone modification data in the same cell types (neutrophils,monocytes and Tcells Chen et al. Cell 2016) and replication timing.
+This workbook contains code to reproduce the figures of the paper [GARDEN-NET and ChAseR: a suite of tools for the analysis of chromatin networks](https://doi.org/10.1101/717298) showing examples of the usage of the ChAseR package on Promoter Capture HiC data for haematopoietic cells  (Javierre et al. Cell 2016) in integration with gene expression, methylation and histone modification data in the same cell types (neutrophils,monocytes and Tcells Chen et al. Cell 2016) and replication timing.
 
 Data sources
 Data for the Chen et al. Cell 2016 can be found here ftp://ftp.ebi.ac.uk/pub/databases/blueprint/blueprint_Epivar/
