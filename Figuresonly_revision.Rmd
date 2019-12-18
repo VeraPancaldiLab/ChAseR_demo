@@ -1,0 +1,339 @@
+---
+title: "Figures only"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+svg(paste(figurespath,'Histmodsneutro.svg', sep='/'), height=9, width=9)
+par(mfrow=c(2,2))
+ plot(colMeans(chromneunet_bbfeat[,selind]),chromneunet_bbchas[selind], pch=21,bg='blue', xlab='Abundance PP', ylab='ChAs PP', , xlim=c(0.1, 0.5), ylim=c(-0.05,0.4),  cex.axis=1, cex=1 )
+ text(colMeans(chromneunet_bbfeat[,selind]),chromneunet_bbchas[selind],labels=lab, cex=1, pos=2)
+  for (i in 2:50){
+      points(colMeans(rchromneunet_bbfeat[[i]])[selind],rchromneunet_bbchas[[i]][selind], col='grey') 
+      }
+plot(chromneunet_bbchas[selind],chromneunet_bochas[selind], pch=21,bg='blue', xlab='ChAs PP', ylab='ChAs PO', xlim=c(0, 0.35), ylim=c(-0.2,0.3),  cex.axis=1, cex=1)
+   text(chromneunet_bbchas[selind],chromneunet_bochas[selind],labels=lab, cex=1, pos=2)  
+      
+    abline(a=0, b=1)
+    abline(h=0)
+
+sel=intersect( grep('H3K27ac', colnames(chromneunet_bofeat)), which(samples %in% sampleslist[['neutros']]))
+   # sel1=sel[grep('S00H5QH1',sel)]
+  #  print(names(neunet_bochas[sel[sel1]]))
+    print(length(sel))
+    if (length(sel)>0){
+    plot(chromneunet_bbchas[sel],chromneunet_bochas[sel], pch=21,bg='blue', xlab='ChAs PP', ylab='ChAs PO', xlim=c(0, 0.35), ylim=c(-0.3,0.6), cex.axis=1, cex=1 )
+     
+      
+    abline(a=0, b=1)
+    abline(h=0)
+    }
+plot(colMeans(rchromneunet_bbfeat[[1]])[sel],rchromneunet_bbchas[[1]][sel], pch='.', xlim=c(0.1,0.5), ylim=c(-0.05,0.35), col=mycols, xlab='Mean Abundance PP',     
+           ylab='ChAs PP ', cex.axis=1, cex=1) 
+      for (i in 2:50){
+      points(colMeans(rchromneunet_bbfeat[[i]])[sel],rchromneunet_bbchas[[i]][sel], pch='.',col=mycols) 
+      }
+      points(colMeans(chromneunet_bbfeat)[sel], chromneunet_bbchas[sel],  pch=20, col=mycols)
+dev.off()
+
+```
+
+```{r}
+par(mfrow=c(2,2))
+cf<- cut(netmetneu_bbfeat[,'S000GZ'], seq(0,1,by=0.25), include.lowest=T)
+y <- netmetneubbcorr[,'S000GZ']
+
+daf <- data.frame(y=y, Methylation=cf)
+library(Hmisc)
+p <- ggplot2::ggplot(daf, aes(Methylation, y))
+p <- p + ggplot2::geom_violin()
+p <- p + theme(axis.line = element_line(colour = "black"),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+               panel.background = element_blank(),
+              legend.position='none',
+              axis.text.x=element_text(size=16),
+              axis.text.y=element_text(size=16),
+              axis.title.x=element_text(size=16),
+              axis.title.y=element_text(size=16))
+p <- p + xlab("Methylation promoter bait")
+p <- p + ylab("Av. met. at neighbouring promoters")
+p<-p + stat_summary(fun.data=mean_sdl,      geom="pointrange", color="black")
+plot(p)
+
+ggplot2::ggsave(paste(figurespath, 'Meth_1subject_correVioplot.pdf', sep='/'))
+
+```
+
+```{r}
+neunetexpbbcorr <- chaser::chas(neunetbbexp, method="corr_fun")
+
+neunetexpbbfeat=export(neunetbbexp)
+expvals=neunetexpbbfeat[complete.cases(neunetexpbbfeat[,'S000GZ']),'S000GZ']
+cf=cut(expvals, seq(min(expvals),max(expvals),by=4), include.lowest=T)
+#cf<- cut(neunetexpbbfeat[,'S000GZ'], seq(min(neunetexpbbfeat[,'S000GZ']),17,by=3), include.lowest=T)
+y <- neunetexpbbcorr[complete.cases(neunetexpbbcorr),'S000GZ']
+
+daf <- data.frame(y=y,Expression=cf)
+library(Hmisc)
+p <- ggplot2::ggplot(daf, aes(Expression, y))
+p <- p + ggplot2::geom_violin()
+p <- p + theme(axis.line = element_line(colour = "black"),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+               panel.background = element_blank(),
+              legend.position='none',
+              axis.text.x=element_text(size=16),
+              axis.text.y=element_text(size=16),
+              axis.title.x=element_text(size=16),
+              axis.title.y=element_text(size=16))
+p <- p + xlab("Expression")
+p <- p + ylab("Av. exp. at neighbouring promoters")
+p<-p + stat_summary(fun.data=mean_sdl,      geom="pointrange", color="black")
+plot(p)
+ggplot2::ggsave(paste(figurespath, 'Expression_Neutrophil_1subject_correVioplot.pdf', sep='/'))
+
+```
+
+```{r}
+cf=cut(expvals, seq(min(expvals),max(expvals),by=4), include.lowest=T)
+#cf<- cut(neunetexpbbfeat[,'S000GZ'], seq(min(neunetexpbbfeat[,'S000GZ']),17,by=3), include.lowest=T)
+y <- neunetexpbbcorr[complete.cases(neunetexpbbcorr),'S000GZ']
+
+daf <- data.frame(y=y,Expression=cf)
+library(Hmisc)
+p1 <- ggplot2::ggplot(daf, aes(Expression, y))
+p1 <- p1 + ggplot2::geom_violin()
+p1 <- p1 + theme(axis.line = element_line(colour = "black"),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+               panel.background = element_blank(),
+              legend.position='none',
+              axis.text.x=element_text(size=16),
+              axis.text.y=element_text(size=16),
+              axis.title.x=element_text(size=16),
+              axis.title.y=element_text(size=16))
+p1 <- p1 + xlab("Expression")
+p1 <- p1 + ylab("Average expression at neighbouring promoters")
+p1<-p1 + stat_summary(fun.data=mean_sdl,      geom="pointrange", color="black")
+
+
+ggplot2::ggsave(paste(figurespath, 'Expression_1subject_correVioplot.pdf', sep='/'))
+
+```
+
+```{r}
+svg(paste(figurespath, 'Figure3AB.svg', sep='/'), height=5, width=9)
+par(mfrow=c(1,2))
+plot(colMeans(netbpB_bbfeat),netbpB_bbchas,   ylab='ChAs PP',  xlab='Ab PP',   ylim=c(0,0.3),xlim=c(0.5,3), pch=21, bg='red')
+text(colMeans(netbpB_bbfeat),netbpB_bbchas, label=colnames(netbpB_feat), cex=1, pos=3)
+for (i in 2:30){
+ points(colMeans(rnetbpB_bbfeat[[i]]),rnetbpB_bbchas[[i]], col='grey') 
+}
+points(colMeans(rnetbpB_bbfeat[[i]]),rnetbpB_bbchas[[i]],  col='grey')
+
+plot(netbpB_bbchas,netbpB_bochas,   ylab='ChAs PO',  xlab='ChAs PP', pch=21, bg='red',  ylim=c(0,0.22), xlim=c(0,0.3))
+text(netbpB_bbchas,netbpB_bochas, label=colnames(netbpB_feat), cex=1, pos=3)
+abline(a=0, b=1)
+
+dev.off()
+
+svg(paste(figurespath, 'Figure3C.svg', sep='/'), width=4, height=4)
+pheatmap(netbpB_bbcrosschas,display_numbers = T,  cluster_rows=F, cluster_cols=F, fontsize_number=11,fontsize=11, number_color = 'black')
+dev.off()
+
+svg(paste(figurespath, 'Figure3E.svg', sep='/'), height=5, width=8)
+plot(crosschasmatsel[common,3], netbpBand_bbchas[common], xlab='Cross ChAs f1,f2', ylab='Chas of f1 AND f2', xlim=c(-0.05,0.2), ylim=c(0, 0.25),pch=21, bg=cols, cex=1, )
+abline(a=0, b=1)
+for (i in 2:30){
+ points(rcrosschasmat[[i]][common,3], rnetbpBand_bbchas[[i]][common], pch='.', col=cols) 
+}
+text(crosschasmatsel[common,3], netbpBand_bbchas[common], labels=gsub('H3K','',common), cex=0.7, pos=2)
+
+
+dev.off()
+
+```
+
+```{r}
+
+  cols=rainbow(nrow(crosschasmatsel))
+svg(paste(figurespath,'BeekAndvsCross.svg',sep='/'), height=5, width=9)
+plot(crosschasmatsel[,3], andchasmatsel[,3], xlab='Cross ChAs of f1,f2', ylab='Chas of f1 AND f2', xlim=c(-0.02,0.26), ylim=c(0, 0.26), bg=cols, pch=21, cex=1)
+abline(a=0, b=1)
+for (i in 2:30){
+ points(rcrosschasmat[[i]][,3], randchasmat[[i]][,3], pch='.', col=cols) 
+}
+text(crosschasmatsel[,3], andchasmatsel[,3], labels=gsub('H3K','',rownames(crosschasmatsel)), cex=1, pos=3)
+
+dev.off()
+```
+
+
+```{r}
+svg(paste(figurespath,'Distancedist.svg',sep='/'), height=4.5, width=4.5)
+
+plot(density(log10(export(fithumnet, 'edges')$dist)), pch='.', xlim=c(3,8), xlab='Distance spanned (log10 bases)', cex=1, cex.axis=1, main='')
+points(density(log10(export(fithum05net, 'edges')$dist)), pch='.', xlim=c(1,8))
+points(density(log10(export(netbpB_bb, 'edges')$dist), na.rm=T), pch='.', col='red')
+points(density(log10(export(neunetbbexp, 'edges')$dist), na.rm=T), pch='.', col='blue')
+dev.off()
+
+
+svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs_PP.svg', sep='/'), height=4.5, width=4.5)
+plot(netbpB_bbchas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC PP', pch=21, bg='red', ylim=c(0,0.4),xlim=c(0.05,0.3),cex=1, cex.axis=1)
+text(netbpB_bbchas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=1, pos=3)
+points(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
+for (i in 2:length(rfithum05netChip)){
+ points(rnetbpB_bbchas[[i]],rfithum05netChip_chas[[i]], pch='.') 
+}
+abline(a=0, b=1)
+text(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=1, col='blue')
+dev.off()
+
+```
+
+
+```{r}
+fithum05RTcorr <- chaser::chas(fithum05netRTcomp, method="corr_fun")
+
+
+
+cf<- cut(fithum05netRTcomp_feat, seq(-6,6,by=3), include.lowest=T)
+y <- as.vector(fithum05RTcorr)
+
+daf <- data.frame(y=y, RT=cf)
+library(Hmisc)
+p <- ggplot2::ggplot(daf, aes(RT, y))
+p <- p + ggplot2::geom_violin()
+p <- p + theme(axis.line = element_line(colour = "black"),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+               panel.background = element_blank(),
+              legend.position='none',
+              axis.text.x=element_text(size=16),
+              axis.text.y=element_text(size=16),
+              axis.title.x=element_text(size=16),
+              axis.title.y=element_text(size=16))
+p <- p + xlab("RT at a fragment")
+p <- p + ylab("Average RT at neighbouring fragment")
+p<-p + stat_summary(fun.data=mean_sdl,      geom="pointrange", color="black")
+plot(p)
+ggplot2::ggsave(paste(figurespath, 'RT_Neutrophil_correVioplot.pdf', sep='/'))
+
+
+
+```
+
+```{r}
+
+
+svg(paste(figurespath,'Netstats.svg', sep='/'), height=5, width=9)                        
+par(mfrow=c(2,3),mar=c(8,2,4,2), oma=c(2,2,2,2) )
+for (i in 1:length(measlist)){
+  order=sort(measlist[[i]], index.return=T)$ix
+
+  barplot(measlist[[i]][order], las=2, main=names(measlist)[i], cex.names=0.8, col=cols)
+}
+dev.off()
+
+```
+
+
+```{r}
+##fithic compared with  PCHiC abundance
+
+
+svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_Bcells_ALL.svg', sep='/'), heigh=9, width=6) 
+par(mfrow=c(3,2))
+#svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb.svg', sep='/')) 
+
+    plot(colMeans(netbpB_feat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC',  col='red', ylim=c(0,3),xlim=c(0,3))
+  text(colMeans(netbpB_feat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
+  points(colMeans(rnetbpB_feat[[1]]),colMeans(rfithum05netChip_feat[[1]]),pch=21,  col='black') 
+  text(colMeans(rnetbpB_feat[[1]]),colMeans(rfithum05netChip_feat[[1]]), label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+  for (i in 2:length(rfithum05netChip)){
+   points(colMeans(rnetbpB_feat[[i]]),colMeans(rfithum05netChip_feat[[i]]), pch=21) 
+  }
+  abline(a=0, b=1)
+ #dev.off() 
+ 
+ ##fithic compared with  PCHiC ChAs  
+ 
+#svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs.svg', sep='/'))
+plot(netbpB_chas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC',  bg='red', ylim=c(0,0.4),xlim=c(0,0.2))
+text(netbpB_chas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=1, pos=1)
+points(rnetbpB_chas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
+for (i in 2:length(rfithum05netChip)){
+ points(rnetbpB_chas[[i]],rfithum05netChip_chas[[i]], pch='.') 
+}
+abline(a=0, b=1)
+text(rnetbpB_chas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+
+#dev.off()
+
+
+  ##fithic compared with PP PCHiC abundance
+#svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PP.svg', sep='/')) 
+ plot(colMeans(netbpB_bbfeat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC PP',  col='red', ylim=c(0,3),xlim=c(0,3))
+  text(colMeans(netbpB_bbfeat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
+  points(colMeans(rnetbpB_bbfeat[[1]]),colMeans(rfithum05netChip_feat[[1]]),pch=21,  col='black') 
+  text(colMeans(rnetbpB_bbfeat[[1]]),colMeans(rfithum05netChip_feat[[1]]), label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+  for (i in 2:length(rfithum05netChip)){
+   points(colMeans(rnetbpB_bbfeat[[i]]),colMeans(rfithum05netChip_feat[[i]]), pch=21) 
+  }
+  abline(a=0, b=1)
+ #dev.off()
+ 
+  
+  ##fithic compared with  PCHiC PP ChAs  
+ 
+#svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs_PP.svg', sep='/'))
+plot(netbpB_bbchas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC PP',  col='red', ylim=c(0,0.4),xlim=c(0.05,0.3))
+text(netbpB_bbchas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=0.7, pos=3)
+points(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
+for (i in 2:length(rfithum05netChip)){
+ points(rnetbpB_bbchas[[i]],rfithum05netChip_chas[[i]], pch='.') 
+}
+abline(a=0, b=1)
+text(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+#dev.off()
+
+  
+##fithic compared with PO PCHiC abundance  
+#  svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PO.svg', sep='/')) 
+    plot(colMeans(netbpB_bofeat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC PO',  col='red', ylim=c(0,3),xlim=c(0,3))
+  text(colMeans(netbpB_bofeat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1,
+ col='blue')
+  abline(a=0, b=1)
+# dev.off() 
+
+ 
+ 
+##fithic compared with  PCHiC PO ChAs  
+ #svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs_PO.svg', sep='/'))
+ plot(netbpB_bochas, fithum05netChip_chas, xlim=c(0,0.2), ylim=c(0,0.35),ylab='ChAs FitHiC',  xlab='ChAs PCHiC PO',  col='red')
+text(netbpB_bochas, fithum05netChip_chas, label=names(netbpB_chas), cex=0.7, pos=3)
+abline(a=0, b=1)
+
+
+dev.off()
+
+ 
+  
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
