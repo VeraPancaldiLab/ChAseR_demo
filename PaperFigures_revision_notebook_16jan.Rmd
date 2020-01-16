@@ -1,5 +1,5 @@
 ---
-title: "Examples of ChAseR applied to BLUEPRINT EPIVAR data"
+title: "Examples of ChAseR" 
 output: html_notebook
 ---
 ```{r}
@@ -7,18 +7,22 @@ output: html_notebook
 ## ----eval=FALSE----------------------------------------------------------
   library(devtools)
   
- # devtools::install_bitbucket("eraineri/chaser", build_opts=c(), force=T)
+  devtools::install_bitbucket("eraineri/chaser", build_opts=c(), force=T)
 
 library(chaser)
 library(gplots)
 library(ggplot2)
 library(igraph)
 library(pheatmap)
+library(gtable)
+library(vioplot)
 
 ##Define paths:
-netpath='/home/vera/BACKUP_HomeCNIO_August2017/Vera/Blueprint_Dani/PChiC/BP/PCHiCdataBP'
+netpath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/BP/PCHiCdataBP'
 featurepath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/BPfeatures'
 figurespath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Figures/revisionfigures'
+
+nrand=30
 ```
 
 ```{r}
@@ -154,7 +158,7 @@ Plots ChAs PO vs PP
 
 ```{r}
 ##Plot Neutrophils
-svg(paste(figurespath,'HistmodsNeutros_ChAsPO_vs_PP.svg', sep='/'), width=8, height= 8)
+#svg(paste(figurespath,'HistmodsNeutros_ChAsPO_vs_PP.svg', sep='/'), width=8, height= 8)
 par(mfrow=c(2,2))
 
 for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
@@ -172,7 +176,7 @@ for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
     abline(h=0)
     }
 }
-dev.off()
+#dev.off()
 
 
 
@@ -218,7 +222,7 @@ for (h  in c( 'H3K4me1', 'H3K27ac')){
 ```
 Plots ChAs vs abundance 
 ```{r}
-svg(paste(figurespath,'SuppFigs/HistmodsNeutros_ChAsvsAb_PP.svg', sep='/'), width=8, height= 8)
+#svg(paste(figurespath,'SuppFigs/HistmodsNeutros_ChAsvsAb_PP.svg', sep='/'), width=8, height= 8)
 #png(paste(figurespath,'SuppFigs/HistmodsNeutros_ChAsvsAb_PP.png', sep='/'))
 par(mfrow=c(2,2))
 for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
@@ -232,13 +236,13 @@ for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
       
     }
 }
-dev.off()
+#dev.off()
 ```
 
 Randomizations of histone mods 
 ```{r}
 ###Randomization
-rchromneunet_bb <- chaser::randomize(chromneunet_bb, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rchromneunet_bb <- chaser::randomize(chromneunet_bb, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rchromneunet_bbchas <-lapply(rchromneunet_bb, chas)
 rchromneunet_bbfeat <-lapply(rchromneunet_bb, export)
 
@@ -246,7 +250,7 @@ rchromneunet_bbfeat <-lapply(rchromneunet_bb, export)
 
 ```{r}
 
-svg(paste(figurespath,'Histmods_NeuRandDist_abchas.svg', sep='/'))
+#svg(paste(figurespath,'Histmods_NeuRandDist_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Histmods_NeuRandDist_abchas.png', sep='/'))
 
 par(mfrow=c(2,2))
@@ -262,25 +266,25 @@ for (h  in c( 'H3K27me3','H3K4me1','H3K4me3', 'H3K27ac')){
     if (length(sel)>0){
       plot(colMeans(rchromneunet_bbfeat[[1]])[sel],rchromneunet_bbchas[[1]][sel], pch='.', xlim=c(0,1), ylim=c(-0.1,0.5), col=mycols, xlab='Mean Abundance PP',     
            ylab='ChAs PP ', main=paste('Neutrophils ',h)) 
-      for (i in 2:50){
+      for (i in 2:nrand){
       points(colMeans(rchromneunet_bbfeat[[i]])[sel],rchromneunet_bbchas[[i]][sel], pch='.',col=mycols) 
       }
       points(colMeans(chromneunet_bbfeat)[sel], chromneunet_bbchas[sel],  pch=20, col=mycols)
     }
 }
-dev.off()
+#dev.off()
 
 
-svg(paste(figurespath,'H3K27ac_NeuRandDist_abchas.svg', sep='/'))
+#svg(paste(figurespath,'H3K27ac_NeuRandDist_abchas.svg', sep='/'))
 
 plot(colMeans(rchromneunet_bbfeat[[1]])[sel],rchromneunet_bbchas[[1]][sel], pch='.', xlim=c(0.1,0.4), ylim=c(-0.05,0.35), col=mycols, xlab='Mean Abundance PP',     
            ylab='ChAs PP ', main=paste('Neutrophils ',h)) 
-      for (i in 2:50){
+      for (i in 2:nrand){
       points(colMeans(rchromneunet_bbfeat[[i]])[sel],rchromneunet_bbchas[[i]][sel], pch='.',col=mycols) 
       }
       points(colMeans(chromneunet_bbfeat)[sel], chromneunet_bbchas[sel],  pch=20, col=mycols)
 
-dev.off()
+#dev.off()
 ```
 
 
@@ -294,32 +298,32 @@ lab=sapply(selind, function(x){
   
 })
 
-svg(paste(figurespath,'Individual_abchasPP.svg', sep='/'))
+#svg(paste(figurespath,'Individual_abchasPP.svg', sep='/'))
  plot(colMeans(chromneunet_bbfeat[,selind]),chromneunet_bbchas[selind], pch=21,bg='blue', xlab='Abundance PP', ylab='ChAs PP', main='Individual', xlim=c(0.1, 0.5), ylim=c(-0.05,0.4),  cex.axis=1.2 )
  text(colMeans(chromneunet_bbfeat[,selind]),chromneunet_bbchas[selind],labels=lab, cex=1, pos=2)
-  for (i in 2:50){
+  for (i in 2:nrand){
       points(colMeans(rchromneunet_bbfeat[[i]])[selind],rchromneunet_bbchas[[i]][selind], col='grey') 
       }
-dev.off()
+#dev.off()
 
 
-svg(paste(figurespath,'Individual_abchasPOvsPP.svg', sep='/'))
+#svg(paste(figurespath,'Individual_abchasPOvsPP.svg', sep='/'))
 
 plot(chromneunet_bbchas[selind],chromneunet_bochas[selind], pch=21,bg='blue', xlab='ChAs PP', ylab='ChAs PO', main=h, xlim=c(0.15, 0.35), ylim=c(-0.2,0.3),  cex.axis=1.2 )
    text(chromneunet_bbchas[selind],chromneunet_bochas[selind],labels=lab, cex=1, pos=2)  
       
     abline(a=0, b=1)
     abline(h=0)
-dev.off() 
+#dev.off() 
      
 ```
 Histmods Figure 
 ```{r}
-svg(paste(figurespath,'Histmodsneutro.svg', sep='/'))
+#svg(paste(figurespath,'Histmodsneutro.svg', sep='/'))
 par(mfrow=c(2,2))
  plot(colMeans(chromneunet_bbfeat[,selind]),chromneunet_bbchas[selind], pch=21,bg='blue', xlab='Abundance PP', ylab='ChAs PP', , xlim=c(0.1, 0.5), ylim=c(-0.05,0.4),  cex.axis=1.2 )
  text(colMeans(chromneunet_bbfeat[,selind]),chromneunet_bbchas[selind],labels=lab, cex=1, pos=2)
-  for (i in 2:50){
+  for (i in 2:nrand){
       points(colMeans(rchromneunet_bbfeat[[i]])[selind],rchromneunet_bbchas[[i]][selind], col='grey') 
       }
 plot(chromneunet_bbchas[selind],chromneunet_bochas[selind], pch=21,bg='blue', xlab='ChAs PP', ylab='ChAs PO', xlim=c(0, 0.35), ylim=c(-0.2,0.3),  cex.axis=1.2 )
@@ -341,11 +345,11 @@ sel=intersect( grep('H3K27ac', colnames(chromneunet_bofeat)), which(samples %in%
     }
 plot(colMeans(rchromneunet_bbfeat[[1]])[sel],rchromneunet_bbchas[[1]][sel], pch='.', xlim=c(0.1,0.5), ylim=c(-0.05,0.35), col=mycols, xlab='Mean Abundance PP',     
            ylab='ChAs PP ') 
-      for (i in 2:50){
+      for (i in 2:nrand){
       points(colMeans(rchromneunet_bbfeat[[i]])[sel],rchromneunet_bbchas[[i]][sel], pch='.',col=mycols) 
       }
       points(colMeans(chromneunet_bbfeat)[sel], chromneunet_bbchas[sel],  pch=20, col=mycols)
-dev.off()
+#dev.off()
 
 ```
 
@@ -403,19 +407,21 @@ netmetneu_bbfeat=export(netmetneu_bbcomp)
 Randomization of methylation values preserving distance (Figure 2E)
 ```{r}
 ##Randomization on neutrophil network
-rnetmetneu_bbcomp <- chaser::randomize(netmetneu_bbcomp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rnetmetneu_bbcomp <- chaser::randomize(netmetneu_bbcomp, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rnetmetneu_bbchas <-lapply(rnetmetneu_bbcomp, chas)
 rnetmetneu_bbfeat=lapply(rnetmetneu_bbcomp, export)
+```
 
+```{r}
 mycols=rainbow(ncol(netmetneu_bbfeat))
 
-svg(paste(figurespath, 'Epivar_Met_NeuRandDist_abchas.svg', sep='/'))
+#svg(paste(figurespath, 'Epivar_Met_NeuRandDist_abchas.svg', sep='/'))
 plot(colMeans(rnetmetneu_bbfeat[[1]]),rnetmetneu_bbchas[[1]], pch='.', ylim=c(0.0,0.23),xlim=c(0.34, 0.37), col=mycols, xlab='Mean methylation Neutrophils', ylab='ChAs on PP network') 
-for (i in 2:50){
+for (i in 2:nrand){
  points(colMeans(rnetmetneu_bbfeat[[i]]),rnetmetneu_bbchas[[i]], pch='.',col=mycols) 
 }
 points(colMeans(netmetneu_bbfeat), netmetneu_bbchas,  pch=20, col=mycols)
-dev.off()
+#dev.off()
 ```
 More detailed analyses on a single individual (Figures 2F-G)
 ```{r}
@@ -474,12 +480,6 @@ colnames(chromneunet_bbscatter)[10]='node2'
 
 smoothScatter(chromneunet_bbscatter[,'node1'], chromneunet_bbscatter[,'node2'])
 
-install.packages('hexbin')
-library(hexbin)
-d <- ggplot(chromneunet_bbscatter, aes(node1, node2))
-d + geom_hex()
-
-
 #ggsave(paste(figurespath, 'Methylation_neutrophil_onesubject.svg', sep='/'), height=5, width=6)
 
 ##Produce violin plot for 1 individual
@@ -518,6 +518,9 @@ plot(p)
 Expression Data
 ```{r}
 expdatapath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Ngoc/Ngoc/epivar_data/Expression/'
+biomartpath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/common/forGARDEN-NET/biomart/'
+
+  
 biomartpath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/common/forGARDEN-NET/biomart/'
 
 monoexp=read.table(paste(expdatapath,'mono_gene_nor_combat_20151109.txt_sort', sep='/'), sep='\t', header=T)
@@ -598,11 +601,13 @@ tnetbbexpfeat=export(tnetbbexp)
 
 Gneunetbb=export(neunetbb, 'igraph')
 
-write.table(get.edgelist(Gneunetbb), paste(figurespath, 'neunet.txt',sep='/'), quote=F, sep='\t', row.names=F)
+#write.table(get.edgelist(Gneunetbb), paste(figurespath, 'neunet.txt',sep='/'), quote=F, sep='\t', row.names=F)
 
 
-write.table(data.frame(rownames(neunetbbexpfeat),neunetbbexpfeat[,'rowMeans.m.']),paste(figurespath, 'NeutrophilPP_Epivar.txt', sep='/'), row.names=F, quote=F)
+#write.table(data.frame(rownames(neunetbbexpfeat),neunetbbexpfeat[,'rowMeans.m.']),paste(figurespath, 'NeutrophilPP_Epivar.txt', sep='/'), row.names=F, quote=F)
+```
 
+```{r}
 
 ##Produce violin plot for 1 individual expression
 neunetexpbbcorr <- chaser::chas(neunetbbexp, method="corr_fun")
@@ -614,7 +619,7 @@ cf=cut(expvals, seq(min(expvals),max(expvals),by=4), include.lowest=T)
 y <- neunetexpbbcorr[complete.cases(neunetexpbbcorr),'S000GZ']
 
 daf <- data.frame(y=y,Expression=cf)
-library(Hmisc)
+
 p <- ggplot2::ggplot(daf, aes(Expression, y))
 p <- p + ggplot2::geom_violin()
 p <- p + theme(axis.line = element_line(colour = "black"),
@@ -636,37 +641,37 @@ ggplot2::ggsave(paste(figurespath, 'Expression_Neutrophil_1subject_correVioplot.
 ```
 Expression supplementary figures showing ChAs vs abundance in 3 cell types 
 ```{r}
-svg(paste(figurespath,'SuppFigs/Epivar_Monoexp_abchas.svg', sep='/'))
+#svg(paste(figurespath,'SuppFigs/Epivar_Monoexp_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Epivar_Monoexp_abchas.png', sep='/'))
 
 plot(colMeans(mononetbbexpfeat), mononetbbexpchas, xlab="exp ab",
      ylab='chas PP', axes=FALSE,   pch=20, main='Monocytes', col='red')
 axis(1)
 axis(2)
-dev.off()
+#dev.off()
 
 
-svg(paste(figurespath,'SuppFigs/Epivar_Neuexp_abchas.svg', sep='/'))
+#svg(paste(figurespath,'SuppFigs/Epivar_Neuexp_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Epivar_Neuexp_abchas.png', sep='/'))
 plot(colMeans(neunetbbexpfeat), neunetbbexpchas, xlab="exp ab",
    ylab='chas PP',  pch=20, col='blue', main='Neutrophils')
 axis(1)
 axis(2)
-dev.off()
+#dev.off()
 
-svg(paste(figurespath,'SuppFigs/Epivar_Tcellexp_abchas.svg', sep='/'))
+#svg(paste(figurespath,'SuppFigs/Epivar_Tcellexp_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Epivar_Tcellexp_abchas.png', sep='/'))
 plot(colMeans(tnetbbexpfeat), tnetbbexpchas, xlab="exp ab",
    ylab='chas PP',   pch=20, col='darkgreen', main='Tcells')
 axis(1)
 axis(2)
-dev.off()
+#dev.off()
 ```
 Randomizations preserving distance Figure 2H
 ```{r}
 
 ###Neutrophils
-rneuexp <- chaser::randomize(neunetbbexp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rneuexp <- chaser::randomize(neunetbbexp, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rneuexp_chas <-lapply(rneuexp, chas)
 rneuexp_feat=lapply(rneuexp, export)
 ```
@@ -674,45 +679,52 @@ rneuexp_feat=lapply(rneuexp, export)
 ```{r}
 mycols=rainbow(ncol(neunetbbexpfeat))
 
-svg(paste(figurespath,'Epivar_Neuexp_RandDist_abchas.svg', sep='/'))
-plot(colMeans(rneuexp_feat[[1]]),rneuexp_chas[[1]], pch='.', ylim=c(0.02,0.13), xlim=c(3.1,3.25),col=mycols, xlab='Mean expression Neutrophils', ylab='ChAs on PP network') 
-for (i in 2:50){
+#svg(paste(figurespath,'Epivar_Neuexp_RandDist_abchas.svg', sep='/'))
+plot(colMeans(rneuexp_feat[[1]]),rneuexp_chas[[1]], pch='.', ylim=c(0.02,0.13), xlim=c(2.9,3),col=mycols, xlab='Mean expression Neutrophils', ylab='ChAs on PP network') 
+for (i in 2:nrand){
  points(colMeans(rneuexp_feat[[i]]),rneuexp_chas[[i]], pch='.',col=mycols) 
 }
 points(colMeans(neunetbbexpfeat), neunetbbexpchas,  pch=20, col=mycols)
-dev.off()
+#dev.off()
 ```
 Randomization of expression for monocytes and tcells preserving distances (Supp Figures S3)
 ```{r}
 ##Monocytes
-rmonoexp <- chaser::randomize(mononetbbexp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rmonoexp <- chaser::randomize(mononetbbexp, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rmonoexp_chas <-lapply(rmonoexp, chas)
 rmonoexp_feat=lapply(rmonoexp, export)
+```
 
+
+```{r}
 mycols=rainbow(ncol(mononetbbexpfeat))
 #svg(paste(figurespath,'SuppFigs/Epivar_exp_MonoRandDist_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Epivar_exp_MonoRandDist_abchas.png', sep='/'))
 
-plot(colMeans(rmonoexp_feat[[1]]),rmonoexp_chas[[1]], pch='.', ylim=c(0.02,0.13),xlim=c(3.25,3.35), col=mycols, xlab='Mean expression Monocytes', ylab='ChAs on PP network') 
-for (i in 2:50){
+plot(colMeans(rmonoexp_feat[[1]]),rmonoexp_chas[[1]], pch='.', ylim=c(0.02,0.13),xlim=c(3.,3.2), col=mycols, xlab='Mean expression Monocytes', ylab='ChAs on PP network') 
+for (i in 2:nrand){
  points(colMeans(rmonoexp_feat[[i]]),rmonoexp_chas[[i]], pch='.',col=mycols) 
 }
 points(colMeans(mononetbbexpfeat), mononetbbexpchas,  pch=20, col=mycols)
 #dev.off()
 
+```
 
+```{r}
 
 ###Tcells
-#rtexp <- chaser::randomize(tnetbbexp, nrandom=50, preserve.nodes = NULL,dist.match = T)
-#rtexp_chas <-lapply(rtexp, chas)
-#rtexp_feat=lapply(rtexp, export)
+rtexp <- chaser::randomize(tnetbbexp, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
+rtexp_chas <-lapply(rtexp, chas)
+rtexp_feat=lapply(rtexp, export)
+```
 
+```{r}
 mycols=rainbow(ncol(tnetbbexpfeat))
 #svg(paste(figurespath,'SuppFigs/Epivar_exp_TcellRandDist_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Epivar_exp_TcellRandDist_abchas.png', sep='/'))
 
-plot(colMeans(rtexp_feat[[1]]),rtexp_chas[[1]], pch='.', ylim=c(0.02,0.13),xlim=c(3.27, 3.36), col=mycols, xlab='Mean expression Tcells', ylab='ChAs on PP network') 
-for (i in 2:50){
+plot(colMeans(rtexp_feat[[1]]),rtexp_chas[[1]], pch='.', ylim=c(0.02,0.13),xlim=c(3., 3.2), col=mycols, xlab='Mean expression Tcells', ylab='ChAs on PP network') 
+for (i in 2:nrand){
  points(colMeans(rtexp_feat[[i]]),rtexp_chas[[i]], pch='.',col=mycols) 
 }
 points(colMeans(tnetbbexpfeat), tnetbbexpchas,  pch=20, col=mycols)
@@ -723,9 +735,9 @@ Randomization not preserving distance
 
 ###Randomization not preserving distance
 ###Now do randomization with permutations, not preserving ditance 
-#rpneuexp <- chaser::randomize(neunetbbexp, nrandom=100, preserve.nodes = NULL,dist.match = F)
-#rpneuexp_chas <-lapply(rpneuexp, chas)
-#rpneuexp_feat=lapply(rpneuexp, export)
+rpneuexp <- chaser::randomize(neunetbbexp, nrandom=100, preserve.nodes = NULL,dist.match = F)
+rpneuexp_chas <-lapply(rpneuexp, chas)
+rpneuexp_feat=lapply(rpneuexp, export)
 
 mycols=rainbow(ncol(neunetbbexpfeat))
 
@@ -735,8 +747,8 @@ mycols=rainbow(ncol(neunetbbexpfeat))
 #svg(paste(figurespath,'SuppFigs/Epivar_exp_neuRand_abchas.svg', sep='/'))
 #png(paste(figurespath,'SuppFigs/Epivar_exp_neuRand_abchas.png', sep='/'))
 
-plot(colMeans(rpneuexp_feat[[1]]),rpneuexp_chas[[1]], pch='.', col=mycols, ylim=c(-0.05,0.15),xlim=c(3.1, 3.25),  xlab='Mean expression neutrophils', ylab='ChAs on PP network', axes=F) 
-for (i in 2:50){
+plot(colMeans(rpneuexp_feat[[1]]),rpneuexp_chas[[1]], pch='.', col=mycols, ylim=c(-0.05,0.15),xlim=c(2.9, 3),  xlab='Mean expression neutrophils', ylab='ChAs on PP network', axes=F) 
+for (i in 2:nrand){
  points(colMeans(rpneuexp_feat[[i]]),rpneuexp_chas[[i]], pch='.', col=mycols) 
 }
 points(colMeans(neunetbbexpfeat), neunetbbexpchas,  pch=21, bg=mycols)
@@ -757,31 +769,31 @@ netbpB=chaser::make_chromnet(bpB[,c(1,2,3,6,7,8)])
 GbpB=export(netbpB, 'igraph')
 
 
-write.table(get.edgelist(GbpB), paste(figurespath, 'Bnet.txt',sep='/'), quote=F, sep='\t', row.names=F)
+#write.table(get.edgelist(GbpB), paste(figurespath, 'Bnet.txt',sep='/'), quote=F, sep='\t', row.names=F)
 
-
-
-fs=list.files('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Beekman2018_BcellsEpigenome/converted_to_hg19')
+Beekpath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Beekman2018_BcellsEpigenome/converted_to_hg19'
+fs=list.files(Beekpath)
 
 for (f in fs ){
   featn=gsub('.vst.txt', '',f)
-   beek=read.table(paste('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Beekman2018_BcellsEpigenome',f,sep='/'), header=T)
-
-#  beek=read.table(paste('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Beekman2018_BcellsEpigenome',f,sep='/'), header=T)
+  beek=read.table(paste(Beekpath,f,sep='/'), header=T)
+  rownames(beek)=beek[,1]
+  beek=beek[,-1]
 if( length(grep('pval|FDR|CLL',colnames(beek)))>0){
   beek=beek[grep('pval|FDR|CLL', colnames(beek), invert = T)]
   
 }
-beekproc=data.frame(beek[,c(1,2,3)], rowMeans(beek[,c(4:ncol(beek))]))
-rownames(beekproc)=NULL
-colnames(beekproc)[4]=featn
+
+beekprocnew=data.frame(beek[,c(1,2,3)], rowMeans(beek[,c(4:ncol(beek))]))
+
+rownames(beekprocnew)=NULL
+colnames(beekprocnew)[4]=featn
 
 
-
-netbpB=load_features(netbpB, beekproc,featname=featn,type='features_table',auxfun=mean,  missingv=0 )
+netbpB=load_features(netbpB, beekprocnew, type='features_table',featnames=featn,auxfun=mean, missingv=0)
 }
 
-
+netbpB_chas=chas(netbpB)
 ###split PP and PO
 
 baitsB <- unique(chaser::export(netbpB, "edges")$node_from)
@@ -803,47 +815,24 @@ colnames(netbpB_feat)=gsub('.vst.txt', '',fs)
 netbpB_chas=chas(netbpB)
 names(netbpB_chas)=gsub('.vst.txt', '',fs)
 
-rnetbpB=randomize(netbpB,nrandom=30, preserve.nodes=NULL, dist.match=T)
+```
+
+
+```{r}
+  
+
+rnetbpB=randomize(netbpB,nrandom=nrand, preserve.nodes=NULL, dist.match=T)
 rnetbpB_feat=lapply(rnetbpB, export)
 rnetbpB_chas=lapply(rnetbpB, chas)
 
 
-rnetbpB_bb=chaser::randomize(netbpB_bb, nrandom=30, preserve.nodes = NULL,dist.match = T)
+rnetbpB_bb=chaser::randomize(netbpB_bb, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rnetbpB_bbfeat=lapply(rnetbpB_bb, export)
 rnetbpB_bbchas=lapply(rnetbpB_bb, chas)
 ```
 
-```{r}
-
-svg(paste(figurespath,'BeekBcellPCHiCB_ChasvsAbPP.svg', sep='/'))
-plot(colMeans(netbpB_bbfeat),netbpB_bbchas,   ylab='ChAs PP',  xlab='Ab PP',  col='red', ylim=c(0,0.3),xlim=c(0.5,3), main='PCHiC Bcells Beekman PP 2018')
-text(colMeans(netbpB_bbfeat),netbpB_bbchas, label=colnames(netbpB_feat), cex=1, pos=3)
-for (i in 2:30){
- points(colMeans(rnetbpB_bbfeat[[i]]),rnetbpB_bbchas[[i]], col='grey') 
-}
-points(colMeans(rnetbpB_bbfeat[[i]]),rnetbpB_bbchas[[i]],  col='grey')
-dev.off()
-
-###Chas vs Ab for whole PCHiC
-svg(paste(figurespath,'BeekBcellPCHiCB_ChasvsAbAll.svg', sep='/'))
-plot(colMeans(netbpB_feat),netbpB_chas,   ylab='ChAs',  xlab='Ab',  col='red', ylim=c(0,0.22),xlim=c(0.5,2.1), main='PCHiC Bcells Beekman 2018')
-for (i in 2:30){
- points(colMeans(rnetbpB_feat[[i]]),rnetbpB_chas[[i]], col='grey') 
-}
-points(colMeans(rnetbpB_feat[[i]]),rnetbpB_chas[[i]],  col='grey')
-text(colMeans(netbpB_feat),netbpB_chas, label=colnames(netbpB_feat), cex=0.7, pos=3)
-dev.off()
 
 
-svg(paste(figurespath,'BeekBcellPCHiCB_ChasPOvsPP.svg', sep='/'))
-
-plot(netbpB_bbchas,netbpB_bochas,   ylab='ChAs PO',  xlab='ChAs PP',  col='red', ylim=c(0,0.22), xlim=c(0,0.3),main='PCHiC Bcells Beekman  2018')
-text(netbpB_bbchas,netbpB_bochas, label=colnames(netbpB_feat), cex=0.7, pos=3)
-abline(a=0, b=1)
-dev.off()
-
-
-```
 
 ```{r}
 netbpB_crosschas=chas(netbpB, method='crosschas')
@@ -858,60 +847,70 @@ netbpB_bocrosschas=chas(netbpB_bo, method='crosschas')
 netbpB_bbandchas=chaser::chas(netbpB_bb, method="and")
 netbpB_boandchas=chaser::chas(netbpB_bo, method="and")
 
+```
 
+```{r}
 rnetbpB_bbcrosschas=lapply(rnetbpB_bb, chas, method='crosschas')
-rnetbpB_bbcrosschasfin=Reduce('+', rnetbpB_bbcrosschas)/30
+rnetbpB_bbcrosschasfin=Reduce('+', rnetbpB_bbcrosschas)/nrand
 
 rnetbpB_bbandchas=lapply(rnetbpB_bb, chas, method='and')
-rnetbpB_bbandchasfin=Reduce('+', rnetbpB_bbandchas)/30
+rnetbpB_bbandchasfin=Reduce('+', rnetbpB_bbandchas)/nrand
 
 ```
 
 ```{r}
-library(gplots)
+
+library(RColorBrewer)
 
 
-pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPP.pdf', sep='/'))
-pheatmap(netbpB_bbcrosschas,display_numbers = T, main='PP', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
+# Sets the minimum (0), the maximum (15), and the increasing steps (+1) for the color scale
+# Note: if some of your genes are outside of this range, they will appear white on the heatmap
+breaksList = seq(-0.3, 0.4, by = 0.1)
 
-pdf(paste(figurespath,'BeekBcellPCHiC_andchasPP.pdf', sep='/'))
-pheatmap(netbpB_bbandchas,display_numbers = T, main='PP', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
 
-pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPO.pdf', sep='/'))
-pheatmap(netbpB_bocrosschas,display_numbers = T, main='PO', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
 
-pdf(paste(figurespath,'BeekBcellPCHiC_andchasPO.pdf', sep='/'))
-pheatmap(netbpB_boandchas,display_numbers = T, main='PO', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
 
-pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPPrandom.pdf', sep='/'))
-pheatmap(rnetbpB_bbcrosschasfin,display_numbers = T, main='randomPP', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
+par(mfrow=c(2,4))
+#pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPP.pdf', sep='/'))
+pheatmap(netbpB_bbcrosschas,display_numbers = T, main='PP cross', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
 
-pdf(paste(figurespath,'BeekBcellPCHiC_andchasPPrandom.pdf', sep='/'))
-pheatmap(rnetbpB_bbandchasfin,display_numbers = T, main='randomPP', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
+#pdf(paste(figurespath,'BeekBcellPCHiC_andchasPP.pdf', sep='/'))
+pheatmap(netbpB_bbandchas,display_numbers = T, main='PP AND', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
+
+#pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPO.pdf', sep='/'))
+pheatmap(netbpB_bocrosschas,display_numbers = T, main='PO cross', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
+
+#pdf(paste(figurespath,'BeekBcellPCHiC_andchasPO.pdf', sep='/'))
+pheatmap(netbpB_boandchas,display_numbers = T, main='PO AND', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
+
+#pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPPrandom.pdf', sep='/'))
+pheatmap(rnetbpB_bbcrosschasfin,display_numbers = T, main='randomPP cross', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
+
+#pdf(paste(figurespath,'BeekBcellPCHiC_andchasPPrandom.pdf', sep='/'))
+pheatmap(rnetbpB_bbandchasfin,display_numbers = T, main='randomPP AND', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
 
 ###try with z score
-pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPPZscore.pdf', sep='/'))
+#pdf(paste(figurespath,'BeekBcellPCHiC_crosschasPPZscore.pdf', sep='/'))
 
-pheatmap((rnetbpB_bbcrosschasfin-netbpB_bbcrosschas),display_numbers = T, main='Zscore PP Cross', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
+pheatmap((rnetbpB_bbcrosschasfin-netbpB_bbcrosschas),display_numbers = T, main='Zscore PP cross', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
 
-pdf(paste(figurespath,'BeekBcellPCHiC_andchasPPZscore.pdf', sep='/'))
+#pdf(paste(figurespath,'BeekBcellPCHiC_andchasPPZscore.pdf', sep='/'))
 
-pheatmap((rnetbpB_bbandchasfin-netbpB_bbandchas),display_numbers = T, main='Zscore PP AND', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black')
-dev.off()
+pheatmap((rnetbpB_bbandchasfin-netbpB_bbandchas),display_numbers = T, main='Zscore PP AND', cluster_rows=F, cluster_cols=F, fontsize_number=14,fontsize=14, number_color = 'black',color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), breaks=breaksList)
+#dev.off()
+
 
 ```
 
 
 ```{r}
-##se pheatmap to do this.
-
 
 newmt=netbpB_bbcrosschas
 newmt[lower.tri(newmt)]<-0
@@ -957,221 +956,139 @@ randchasmat=lapply(randchasag, function(x){
   return(res)
 
 })
-  cols=rainbow(length(common))
 
-svg(paste(figurespath,'BeekAndvsCross.svg',sep='/'), height=5, width=8)
-plot(crosschasmatsel[,3], andchasmatsel[,3], xlab='Cross ChAs of f1,f2', ylab='Chas of f1 AND f2', xlim=c(-0.02,0.26, ylim=c(0, 0.26), bg=cols, pch=21)
+```
+
+```{r}
+#svg(paste(figurespath, 'Figure3ABCD.svg', sep='/'), height=5, width=9)
+par(mfrow=c(1,2))
+plot(colMeans(netbpB_bbfeat),netbpB_bbchas,   ylab='ChAs PP',  xlab='Abundance PP',   ylim=c(0,0.43),xlim=c(0,7), pch=21, bg='red')
+text(colMeans(netbpB_bbfeat),netbpB_bbchas, label=colnames(netbpB_feat), cex=0.8, pos=1)
+for (i in 2:nrand){
+ points(colMeans(rnetbpB_bbfeat[[i]]),rnetbpB_bbchas[[i]], col='grey') 
+}
+points(colMeans(rnetbpB_bbfeat[[i]]),rnetbpB_bbchas[[i]],  col='grey')
+abline(h=0)
+
+plot(netbpB_bbchas,netbpB_bochas,   ylab='ChAs PO',  xlab='ChAs PP', pch=21, bg='red',  ylim=c(-0.25,0.32), xlim=c(0,0.5))
+text(netbpB_bbchas,netbpB_bochas, label=colnames(netbpB_feat), cex=0.8, pos=3)
 abline(a=0, b=1)
-for (i in 2:30){
+abline(h=0)
+
+#dev.off()
+
+
+
+
+par(mfrow=c(1,1))
+  cols=rainbow(nrow(crosschasmatsel))
+
+#svg(paste(figurespath,'BeekAndvsCross.svg',sep='/'), height=5, width=8)
+plot(crosschasmatsel[,3], andchasmatsel[,3], xlab='Cross ChAs of f1,f2', ylab='Chas of f1 AND f2', xlim=c(-0.2,0.4), ylim=c(0, 0.4), bg=cols, pch=21)
+abline(a=0, b=1)
+for (i in 2:nrand){
  points(rcrosschasmat[[i]][,3], randchasmat[[i]][,3], pch='.', col=cols) 
 }
 text(crosschasmatsel[,3], andchasmatsel[,3], labels=gsub('H3K','',rownames(crosschasmatsel)), cex=0.7, pos=3)
+abline(h=0)
+abline(v=0)
 
-dev.off()
-
+#dev.off()
 
 ```
 
 
-Make combined feature matrix - deprecated
+
+
+
+
+
+```{r}
+
+
+
+###Chas vs Ab for whole PCHiC
+#svg(paste(figurespath,'NBeek_ChasvsAbAll.svg', sep='/'))
+plot(colMeans(netbpB_feat),netbpB_chas,   ylab='ChAs',  xlab='Ab',  col='red', ylim=c(-0.15,0.4),xlim=c(0,4), main='PCHiC Bcells Beekman 2018')
+for (i in 2:nrand){
+ points(colMeans(rnetbpB_feat[[i]]),rnetbpB_chas[[i]], col='grey') 
+}
+points(colMeans(rnetbpB_feat[[i]]),rnetbpB_chas[[i]],  col='grey')
+text(colMeans(netbpB_feat),netbpB_chas, label=colnames(netbpB_feat), cex=0.7, pos=3)
+abline(h=0)
+#dev.off()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r}
 
 combsbeek=combn(c(1:ncol(netbpB_feat)),2)
 
-
-beekcombs=netbpB_feat
-
-
-###make combined features
-for (i in 1:ncol(combsbeek)){
-  combbeekdata=as.numeric(netbpB_feat[,combsbeek[1,i]]>0 & netbpB_feat[,combsbeek[2,i]]>0)
-  
-  beekcombs=data.frame(beekcombs, combbeekdata)
-  colnames(beekcombs)[ncol(beekcombs)]=paste(colnames(netbpB_feat)[combsbeek[1,i]], colnames(netbpB_feat)[combsbeek[2,i]], sep='_')
-}
-
-netbpBand=chaser::make_chromnet(bpB[,c(1,2,3,6,7,8)])
-beekcombscat=apply(beekcombs[,-c(1:7)],c(1,2),function(x){
-return(as.integer(x>0)+1)
-
-})
-netbpBand=load_features(netbpBand, beekcombscat, type='features_on_nodes', missingv=0)
-netbpBand_chascat=chas(netbpBand, method='categorical')
-
-
-
-
-netbp_Bandbb<- chaser::subset_chromnet(netbpBand, method="nodes", nodes1=baitsB)
-
-
-
-netbpBand_featcat=export(netbpBand)
-netbpBand_chascat=chas(netbpBand)
-
-netbpBand_bbfeatcat=export(netbp_Bandbb)
-netbpBand_bbchas=chas(netbp_Bandbb)
-netbpBand_bbchascat=chas(netbp_Bandbb, method='categorical')
-
-netbpB_crosschas
-
-crosschasg=graph.adjacency(netbpB_crosschas, weighted=T)
-crosschasmat=data.frame(get.edgelist(crosschasg), E(crosschasg)$weight)
-crosschasmatsel=crosschasmat[-which(crosschasmat[,1]==crosschasmat[,2]),]
-rownames(crosschasmatsel)=paste(crosschasmatsel[,1], crosschasmatsel[,2],sep='_')
-common=intersect(names(netbpBand_bbchas), rownames(crosschasmatsel))
-
-###randomization
-rnetbpBand_bb=chaser::randomize(netbp_Bandbb, nrandom=30, preserve.nodes = NULL,dist.match = T)
-
-rnetbpBand_bbfeat=lapply(rnetbpBand_bb, export)
-rnetbpBand_bbchascat=lapply(rnetbpBand_bb, chas, method='categorical')
-rnetbpBand_bbchas=lapply(rnetbpBand_bb, chas)
-
-
-rnetbpB_bbcrosschas=lapply(rnetbpB_bb, chas, method='crosschas')
-
-rcrosschasag=lapply(rnetbpB_bbcrosschas, function(x){
-  return(graph.adjacency(x, weighted=T))
-  
-})
-  
-rcrosschasmat=lapply(rcrosschasag, function(x){
-  res=data.frame(get.edgelist(x), E(x)$weight)
-  res=res[-which(res[,1]==res[,2]),]
-  rownames(res)=paste(res[,1], res[,2],sep='_')
-  return(res)
-
-})
-  
-
-
-common=intersect(names(rnetbpBand_bbchas[[1]]), rownames(rcrosschasmat[[1]]))
-```
-
-
-```{r}
-
-cols=rainbow(length(common))
-
-svg(paste(figurespath,'BeekAndvsCross.svg',sep='/'))
-plot(crosschasmatsel[common,3], netbpBand_bbchas[common], xlab='Cross chas', ylab='Chas of f1 AND f2', xlim=c(-0.05,0.2), ylim=c(0, 0.25), col=cols)
-abline(a=0, b=1)
-for (i in 2:30){
- points(rcrosschasmat[[i]][common,3], rnetbpBand_bbchas[[i]][common], pch='.', col=cols) 
-}
-text(crosschasmatsel[common,3], netbpBand_bbchas[common], labels=gsub('H3K','',common), cex=0.7, pos=2)
-
-dev.off()
-
-
-```
-
-```{r}
-###new and chas
-netbpB_bbAND=chaser::chas(netbpB_bb, method="and")
-print(chaser::chas(net3, method="and"))
-
-andchasg=graph.adjacency(netbpB_andchas, weighted=T)
-andchasmat=data.frame(get.edgelist(andchasg), E(andchasg)$weight)
-andchasmatsel=andchasmat[-which(andchasmat[,1]==andchasmat[,2]),]
-rownames(andchasmatsel)=paste(andchasmatsel[,1], andchasmatsel[,2],sep='_')
-common=intersect(names(netbpBand_bbchas), rownames(andchasmatsel))
-
-
-
-
-```
-
-```{r}
-######AND chas vs ab
-svg(paste(figurespath,'BeekAndChAsvsAb.svg', sep='/'))
-plot((colMeans(netbpBand_bbfeatcat)-1), netbpBand_bbchas[common], xlab='Abundance (f1 And f2)', ylab='And ChAs', xlim=c(0,0.26), ylim=c(0, 0.25), col=cols)
-
-for (i in 2:30){
- points( (colMeans(rnetbpBand_bbfeat[[i]])-1), rnetbpBand_bbchas[[i]], pch='.', col=cols) 
-}
-points(colMeans(netbpB_bbfeat), netbpB_bbchas,col='grey')
-text((colMeans(netbpBand_bbfeatcat)-1), netbpBand_bbchas[common], labels=gsub('H3K', '',names(netbpBand_bbchas)), cex=0.7, pos=3)
-dev.off()
-
-
-```
-
-```{r}
 ###Cross chas vs ab
 ###find abundance from cross features
 netbpB_bbcrossAb=apply(combsbeek, 2, function(x){
   a=(colMeans(netbpB_bbfeat)[x[1]])
   b=colMeans(netbpB_bbfeat)[x[2]]
-  print(a)
-  print(b)
+  #print(a)
+  #print(b)
   c=a+b
-  print(c/2)
+  #print(c/2)
   return(c/2)
 })
-names(netbpB_bbcrossAb)=common
+names(netbpB_bbcrossAb)=rownames(crosschasmatsel)
 
 
 rnetbpB_bbcrossAb=lapply(rnetbpB_bbfeat,function(y){
   res=apply(combsbeek, 2, function(x){
   a=(colMeans(y)[x[1]])
   b=colMeans(y)[x[2]]
-  print(a)
-  print(b)
+  #print(a)
+  #print(b)
   c=a+b
-  print(c/2)
+  #print(c/2)
   return(c/2)
   })
   #print(res)
-names(res)=common
+names(res)=rownames(crosschasmatsel)
   return(res)
   
 } )
 ```
 
 ```{r}
-svg(paste(figurespath,'BeekCrossChAsvsAb.svg', sep='/'))
-plot(netbpB_bbcrossAb, crosschasmatsel[common,3], xlab='Abundance mean(f1,f2)', ylab='Cross ChAs', xlim=c(0.7,2.8), ylim=c(-0.05, 0.2), col=cols)
-text(netbpB_bbcrossAb, crosschasmatsel[common,3], labels=gsub('H3K', '',names(netbpBand_bbchas)), cex=0.7, pos=3)
+#svg(paste(figurespath,'BeekCrossChAsvsAb.svg', sep='/'))
+plot(netbpB_bbcrossAb, crosschasmatsel[,3], xlab='Abundance mean(f1,f2)', ylab='Cross ChAs', xlim=c(1,7), ylim=c(-0.15, 0.4), col=cols)
+text(netbpB_bbcrossAb, crosschasmatsel[,3], labels=gsub('H3K', '',names(netbpB_bbchas)), cex=0.7, pos=3)
 #dev.off()
-for (i in 2:30){
- points( rnetbpB_bbcrossAb[[i]], rcrosschasmat[[i]][common,3], pch='.', col=cols) 
+for (i in 2:nrand){
+ points( rnetbpB_bbcrossAb[[i]], rcrosschasmat[[i]][,3], pch='.', col=cols) 
 }
-dev.off()
+#dev.off()
 
 
 ```
 
 
-```{r}
 
 
-
-
-cols=rainbow(length(common))
-svg(paste(figurespath,'BeekAndvsCross.svg', sep='/'))
-plot(crosschasmatsel[common,3], netbpBand_bbchas[common], xlab='Cross ChAs', ylab='AND ChAs', xlim=c(-0.02,0.3), ylim=c(0, 0.3), col=cols)
-text(crosschasmatsel[common,3], netbpBand_bbchas[common], labels=gsub('H3K','',common), cex=0.7, pos=3)
-abline(a=0, b=1)
-abline(h=0)
-abline(v=0)
-points(netbpB_bbchas, netbpB_bbchas)
-text(netbpB_bbchas, netbpB_bbchas, labels=names(netbpB_chas), cex=0.7, pos=3)
-dev.off()
-
-```
-
-```{r}
-
-
-```
 
 Fit HiC on human lymphoblastoid cell line
 ```{r}
 fithum=read.table('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/FitHiCLieb2009_GM06990/Lieberman_human_GM-12_hg19.spline_pass2.pvals.txt', sep='\t')
 colnames(fithum)=c('chr1','fragmentMid1','chr2',	'fragmentMid2','contactCount','p-value','q-value')
 
-save(fithum, file='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/FitHiCLiebGM06690.Rdata')
+#save(fithum, file='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/FitHiCLiebGM06690.Rdata')
 fithumnetmat=data.frame(fithum[,1],fithum[,2]-25000, fithum[,2]+25000, fithum[,3],fithum[,4]-25000, fithum[,4]+25000 )
 fithumnet=make_chromnet(fithumnetmat)
 
@@ -1179,29 +1096,29 @@ selh=which(fithum$`p-value`<0.05)
 fithum05netmat=data.frame(fithum[selh,1],fithum[selh,2]-25000, fithum[selh,2]+25000, fithum[selh,3],fithum[selh,4]-25000, fithum[selh,4]+25000 )
 fithum05net=make_chromnet(fithum05netmat)
 
-save(fithum05net, file='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/fithum05net50k.Rdata')
+#save(fithum05net, file='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/fithum05netnrandk.Rdata')
 
 summary(export(fithum05net, 'edges')$dist)
-
+Gfithum05net=export(fithum05net, 'igraph')
 ```
 
 Check distance distribution
 
 ```{r}
-svg(paste(figurespath,'SuppFigs/Distancedist.svg',sep='/'))
-plot(density(log10(export(fithumnet, 'edges')$dist)), pch='.', xlim=c(3,8))
-points(density(log10(export(fithum05net, 'edges')$dist)), pch='.', xlim=c(1,8))
-points(density(log10(export(netbpB, 'edges')$dist), na.rm=T), pch='.', col='red')
-points(density(log10(export(mononet, 'edges')$dist), na.rm=T), pch='.', col='red')
-points(density(log10(export(neunet, 'edges')$dist), na.rm=T), pch='.', col='red')
-dev.off()
+#svg(paste(figurespath,'SuppFigs/Distancedist.svg',sep='/'))
+plot(density(log10(export(fithumnet, 'edges')$dist)), type='l', xlim=c(3,8), col='grey', xlab='Distance spanned (log10 bases)')
+points(density(log10(export(fithum05net, 'edges')$dist)),type='l',)
+points(density(log10(export(netbpB, 'edges')$dist), na.rm=T), type='l', col='red')
+points(density(log10(export(neunet, 'edges')$dist), na.rm=T),  col='blue',type='l')
+#dev.off()
 
 
 
-hist(log10(export(fithum05net, 'edges')$dist), 50)
-hist(log10(export(fithumnet, 'edges')$dist), 50, add=T)
 
 ```
+
+
+
 ```{r}
 ####Now try chipseq
 humhist=list.files('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/histmods')
@@ -1227,7 +1144,7 @@ fithum05netHist_crosschas=chas(fithum05netHist, method='crosschas')
 
 
 ###randomization
-rfithum05netHist=chaser::randomize(fithum05netHist, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rfithum05netHist=chaser::randomize(fithum05netHist, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rfithum05netHist_feat=lapply(rfithum05netHist, export)
 rfithum05netHist_chas=lapply(rfithum05netHist, chas)
 
@@ -1242,15 +1159,15 @@ rfithum05netHist_chas=lapply(rfithum05netHist, chas)
 
 labs= c("H3k27me3_1", "H3k27me3_2", "H3k36me3_1", "H3k36me3_2")
 
-svg(paste(figurespath,'GM06990_histmods.svg', sep='/'))
-plot(colMeans(fithum05netHist_feat),fithum05netHist_chas,   ylab='ChAs ',  xlab='Ab',  col='red', ylim=c(0,0.3),xlim=c(0.015,0.035), main='FitHiC_GM06990histmods')
+#svg(paste(figurespath,'GM06990_histmods.svg', sep='/'))
+plot(colMeans(fithum05netHist_feat),fithum05netHist_chas,   ylab='ChAs ',  xlab='Abundance',  col='red', ylim=c(0,0.3),xlim=c(0.015,0.037), main='FitHiC_GM06990histmods')
 text(colMeans(fithum05netHist_feat),fithum05netHist_chas, label=labs, cex=0.7, pos=3)
 points(colMeans(rfithum05netHist_feat[[1]]),rfithum05netHist_chas[[1]], pch='.',  ylab='ChAs FitHiChum05',  ylim=c(0, 0.7),xlab='Abundance', col='grey') 
 
 for (i in 2:length(rfithum05netHist)){
  points(colMeans(rfithum05netHist_feat[[i]]),rfithum05netHist_chas[[i]], col='grey') 
 }
-dev.off()
+#dev.off()
 
 
 
@@ -1289,76 +1206,75 @@ colnames(fithum05netChip_feat)=gsub('.vst.txt', '',fs)
 fithum05netChip_chas=chas(fithum05netChip)
 
 
-save(fithum05netChip_feat,file='GM06990_histonemods.Rdata')
+#save(fithum05netChip_feat,file='GM06990_histonemods.Rdata')
 
 ```
 
 ```{r}
 ###randomize
-rfithum05netChip=chaser::randomize(fithum05netChip, nrandom=30, preserve.nodes = NULL,dist.match = T)
+rfithum05netChip=chaser::randomize(fithum05netChip, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rfithum05netChip_feat=lapply(rfithum05netChip, export)
 rfithum05netChip_chas=lapply(rfithum05netChip, chas)
-rfithum05netChip_crosschas=lapply(rfithum05netChip, chas, method='crosschas')
+#rfithum05netChip_crosschas=lapply(rfithum05netChip, chas, method='crosschas')
 ```
 
 ```{r}
-svg(paste(figurespath,'BeekBcellGM06990.svg', sep='/'))
-plot(colMeans(fithum05netChip_feat),fithum05netChip_chas,   ylab='ChAs ',  xlab='Ab',  col='red', ylim=c(0,0.5),xlim=c(1.4,3.1), main='FitHiC GM06990 Bcells Beekman 2018')
+#svg(paste(figurespath,'BeekBcellGM06990.svg', sep='/'))
+plot(colMeans(fithum05netChip_feat),fithum05netChip_chas,   ylab='ChAs ',  xlab='Abundance',  col='red', ylim=c(0,0.4),xlim=c(1,4), main='FitHiC GM06990 Bcells Beekman 2018')
 text(colMeans(fithum05netChip_feat),fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=0.7, pos=3)
-points(colMeans(rfithum05netChip_feat[[1]]),rfithum05netChip_chas[[1]], pch='.',  ylab='ChAs FitHiChum05',  ylim=c(0, 0.7),xlab='Abundance', col='grey') 
+points(colMeans(rfithum05netChip_feat[[1]]),rfithum05netChip_chas[[1]], pch='.',  ylab='ChAs FitHiChum05',  xlab='Abundance', col='grey') 
 #text(colMeans(rfithum05netChip_feat[[1]]),rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.3, col='blue')
 for (i in 2:length(rfithum05netChip)){
  points(colMeans(rfithum05netChip_feat[[i]]),rfithum05netChip_chas[[i]], col='grey') 
 }
-dev.off()
-```
-
-```{r}
-svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs.svg', sep='/'))
- plot(netbpB_chas, fithum05netChip_chas, xlim=c(0,0.2), ylim=c(0,0.35))
-text(netbpB_chas, fithum05netChip_chas, label=names(netbpB_chas), cex=0.7, pos=3)
-abline(a=0, b=1)
-dev.off()
-
-svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsAb.svg', sep='/'))
- plot(colMeans(netbpB_feat), colMeans(fithum05netChip_feat), xlim=c(0,3), ylim=c(0,3))
-text(colMeans(netbpB_feat), colMeans(fithum05netChip_feat), label=names(netbpB_chas), cex=0.7, pos=3)
-abline(a=0, b=1)
-dev.off()
+#dev.off()
 
 
 
 ```
 
 ```{r}
+###compare FitHiC with PCHiC Ab and Chas
+#svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_All.svg', sep='/'), heigh=9, width=6) 
+par(mfrow=c(3,2))
+##fithic compared with  PCHiC abundance
+#svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb.svg', sep='/')) 
+
+    plot(colMeans(netbpB_feat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC',  col='red', ylim=c(0,4),xlim=c(0,4) )
+  text(colMeans(netbpB_feat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
+  points(colMeans(rnetbpB_feat[[1]]),colMeans(rfithum05netChip_feat[[1]]),pch=21,  col='black') 
+  text(colMeans(rnetbpB_feat[[1]]),colMeans(rfithum05netChip_feat[[1]]), label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+#  for (i in 2:length(rfithum05netChip)){
+#   points(colMeans(rnetbpB_feat[[i]]),colMeans(rfithum05netChip_feat[[i]]), pch=21) 
+#  }
+  abline(a=0, b=1)
+  abline(h=0)
+abline(v=0)
+
+ #dev.off() 
+  
+  
+
 ###fit hic compared to Whole PCHIC net
-svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs.svg', sep='/'))
-plot(netbpB_chas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC',  bg='red', ylim=c(0,0.4),xlim=c(0,0.2), main='FitHiC GM06990 Bcells Beekman 2018')
-text(netbpB_chas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=1, pos=1)
+#svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs.svg', sep='/'))
+plot(netbpB_chas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC',  bg='red', ylim=c(0,0.4),xlim=c(-0.2,0.4))
+text(netbpB_chas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
 points(rnetbpB_chas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
-for (i in 2:length(rfithum05netChip)){
- points(rnetbpB_chas[[i]],rfithum05netChip_chas[[i]], pch='.') 
-}
+#for (i in 2:length(rfithum05netChip)){
+# points(rnetbpB_chas[[i]],rfithum05netChip_chas[[i]], pch='.') 
+#}
 abline(a=0, b=1)
+abline(h=0)
+abline(v=0)
+
 text(rnetbpB_chas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
 
-dev.off()
+#dev.off()
 
-##fithic compared to PP PCHIC net
-svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs_PP.svg', sep='/'))
-plot(netbpB_bbchas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC PP',  col='red', ylim=c(0,0.4),xlim=c(0.05,0.3), main='GM06990 Bcells FitHiC vs PCHiC PP Beekman 2018')
-text(netbpB_bbchas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=0.7, pos=3)
-points(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
-for (i in 2:length(rfithum05netChip)){
- points(rnetbpB_bbchas[[i]],rfithum05netChip_chas[[i]], pch='.') 
-}
-abline(a=0, b=1)
-text(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
-dev.off()
 
-  ##fithic compared with PP PCHiC abundance
-svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PP.svg', sep='/')) 
- plot(colMeans(netbpB_bbfeat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC PP',  col='red', ylim=c(0,3),xlim=c(0,3), main=' GM06990 Bcells FitHiC vs PCHiC PP Beekman 2018')
+##fithic compared with PP PCHiC abundance
+#svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PP.svg', sep='/')) 
+ plot(colMeans(netbpB_bbfeat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC PP',  col='red', ylim=c(0,7),xlim=c(0,5))
   text(colMeans(netbpB_bbfeat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
   points(colMeans(rnetbpB_bbfeat[[1]]),colMeans(rfithum05netChip_feat[[1]]),pch=21,  col='black') 
   text(colMeans(rnetbpB_bbfeat[[1]]),colMeans(rfithum05netChip_feat[[1]]), label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
@@ -1366,39 +1282,87 @@ svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PP.svg', sep='/'))
    points(colMeans(rnetbpB_bbfeat[[i]]),colMeans(rfithum05netChip_feat[[i]]), pch=21) 
   }
   abline(a=0, b=1)
- dev.off()
- 
- 
-##fithic compared with  PCHiC abundance
-svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb.svg', sep='/')) 
+  abline(h=0)
+abline(v=0)
 
-    plot(colMeans(netbpB_feat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC',  col='red', ylim=c(0,3),xlim=c(0,3), main=' GM06990 Bcells FitHiC vs PCHiC PP Beekman 2018')
-  text(colMeans(netbpB_feat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
-  points(colMeans(rnetbpB_feat[[1]]),colMeans(rfithum05netChip_feat[[1]]),pch=21,  col='black') 
-  text(colMeans(rnetbpB_feat[[1]]),colMeans(rfithum05netChip_feat[[1]]), label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
-  for (i in 2:length(rfithum05netChip)){
-   points(colMeans(rnetbpB_feat[[i]]),colMeans(rfithum05netChip_feat[[i]]), pch=21) 
-  }
-  abline(a=0, b=1)
- dev.off() 
-  cor.test(colMeans(netbpB_feat),colMeans(fithum05netChip_feat))
+ #dev.off()
+##fithic compared to PP PCHIC net
 
   
-  svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PO.svg', sep='/')) 
-    plot(colMeans(netbpB_bofeat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC PO',  col='red', ylim=c(0,3),xlim=c(0,3), main=' GM06990 Bcells FitHiC vs PCHiC PO Beekman 2018')
+  #svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs_PP.svg', sep='/'))
+plot(netbpB_bbchas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC PP',  col='red', ylim=c(0,0.5),xlim=c(0,0.5))
+text(netbpB_bbchas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=0.7, pos=3)
+points(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
+for (i in 2:length(rfithum05netChip)){
+ points(rnetbpB_bbchas[[i]],rfithum05netChip_chas[[i]], pch='.') 
+}
+abline(a=0, b=1)
+abline(h=0)
+abline(v=0)
+
+text(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+#dev.off()
+
+  
+
+
+
+
+
+#   svg(paste(figurespath, 'SuppFigs/CompareFitHiCPCHiC_BcellsAb_PO.svg', sep='/')) 
+    plot(colMeans(netbpB_bofeat),colMeans(fithum05netChip_feat),   ylab='Ab FitHiC',  xlab='Ab PCHiC PO',  col='red', ylim=c(0,4),xlim=c(0,4))
   text(colMeans(netbpB_bofeat),colMeans(fithum05netChip_feat), label=colnames(fithum05netChip_feat), cex=0.7, pos=1,
  col='blue')
-  abline(a=0, b=1)
- dev.off() 
+   abline(a=0, b=1)
+  abline(h=0)
+abline(v=0)
+
+ #dev.off()
+ 
+ #svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAsPO.svg', sep='/'))
+plot(netbpB_bochas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC PO',  bg='red', ylim=c(0,0.4),xlim=c(-0.3,0.4))
+text(netbpB_bochas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=0.7, pos=1)
+#points(rnetbpB_bochas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
+#for (i in 2:length(rfithum05netChip)){
+# points(rnetbpB_chas[[i]],rfithum05netChip_chas[[i]], pch='.') 
+#}
+abline(a=0, b=1)
+abline(h=0)
+abline(v=0)
+#text(rnetbpB_bochas[[1]],rfithum05netChip_bochas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+
+#dev.off()
+
+# dev.off() 
+
+
+```
+
+
+```{r}
+ #svg(paste(figurespath,'CompareFitHiCPCHiC_BcellsChAs_PP.svg', sep='/'))
+plot(netbpB_bbchas,fithum05netChip_chas,   ylab='ChAs FitHiC',  xlab='ChAs PCHiC PP', bg='red', ylim=c(0,0.5),xlim=c(0,0.5))
+text(netbpB_bbchas,fithum05netChip_chas, label=colnames(fithum05netChip_feat), cex=1, pos=3)
+points(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], pch='.', col='grey') 
+for (i in 2:length(rfithum05netChip)){
+ points(rnetbpB_bbchas[[i]],rfithum05netChip_chas[[i]], col='grey') 
+}
+abline(a=0, b=1)
+abline(h=0)
+abline(v=0)
+
+#text(rnetbpB_bbchas[[1]],rfithum05netChip_chas[[1]], label=colnames(fithum05netChip_feat), cex=0.7, col='blue')
+#dev.off()
+
 ```
 
 
 ```{r}
 ####Methylation
 
-fithum05Met=make_chromnet(fithum05netmat2)
-
-dnamet=read.table('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/GM06990DNAmet/GSM999353_hg19_wgEncodeHaibMethyl450Gm06990SitesRep1-beta.txt')
+fithum05Met=make_chromnet(fithum05netmat)
+dnametpath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/GM06990DNAmet'
+dnamet=read.table(paste(dnametpath,'GSM999353_hg19_wgEncodeHaibMethyl450Gm06990SitesRep1-beta.txt', sep='/'))
 dnametproc=dnamet[,-c(4,5)]
 colnames(dnametproc)=c('chr', 'start', 'end', 'dnamet')
 
@@ -1420,35 +1384,30 @@ save(fithum05Metcomp_feat,file='GM06990_methylation.Rdata')
 
 ```{r}
 
-rfithum05Metcomp=chaser::randomize(fithum05Metcomp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rfithum05Metcomp=chaser::randomize(fithum05Metcomp, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rfithum05Metcomp_feat=lapply(rfithum05Metcomp, export)
 rfithum05Metcomp_chas=lapply(rfithum05Metcomp, chas)
 ```
 
 ```{r}
-svg(paste(figurespath,'SuppFigs/GM06990_DNAmet.svg', sep='/'))
-plot(colMeans(fithum05Metcomp_feat),fithum05Metcomp_chas,   ylab='ChAs ',  xlab='Abundance',  bg='red',pch=21,xlim=c(0.495,0.5),ylim=c(-0.1,0.1), main='FitHiC_GM06990DNAmet')
+#svg(paste(figurespath,'SuppFigs/GM06990_DNAmet.svg', sep='/'))
+plot(colMeans(fithum05Metcomp_feat),fithum05Metcomp_chas,   ylab='ChAs ',  xlab='Abundance',  bg='red',pch=21,xlim=c(0.4945,0.5),ylim=c(-0.05,0.05), main='FitHiC_GM06990DNAmet')
 points(colMeans(rfithum05Metcomp_feat[[1]]),rfithum05Metcomp_chas[[1]], col='grey') 
 for (i in 2:length(rfithum05Metcomp)){
  points(colMeans(rfithum05Metcomp_feat[[i]]),rfithum05Metcomp_chas[[i]], col='grey') 
 }
 abline(h=0)
-dev.off()
+#dev.off()
 ```
 
-```{r}
-scatMet=export(fithum05Metcomp, featnames='dnamet','scatterplot')
-smoothScatter(scatMet[,9], scatMet[,10])
-cor.test(scatMet[,9], scatMet[,10])
 
-
-
-```
 
 
 Look at expression on GM06690
 ```{r}
-exphum=read.table('/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/GM06990RNAseq/GSM2040732_GM06990_genes.fpkm_tracking', sep='\t', header=T)
+expdatapath='/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/HiCData/GM06990RNAseq/'
+
+exphum=read.table(paste(expdatapath,'GSM2040732_GM06990_genes.fpkm_tracking',sep='/'), sep='\t', header=T)
 colnames(exphum)[4]='gene_names'
 ###use coordinates of gene regions
 exphum=exphum[,c('locus','FPKM')]
@@ -1485,7 +1444,7 @@ fithum05netExp=load_features(fithum05netExp,exphumsel, type='bed3', missingv=0, 
 fithum05netExp_feat=export(fithum05netExp)
 fithum05netExp_chas=chas(fithum05netExp)
 
-rfithum05netExp=chaser::randomize(fithum05netExp, nrandom=50, preserve.nodes = NULL,dist.match = T)
+rfithum05netExp=chaser::randomize(fithum05netExp, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rfithum05netExp_feat=lapply(rfithum05netExp, export)
 rfithum05netExp_chas=lapply(rfithum05netExp, chas)
 
@@ -1498,14 +1457,14 @@ write.table(export(fithum05netExp, 'edges'), '/mnt/SERVER-CRCT-STORAGE/CRCT21/Pr
 ```
 
 ```{r}
-svg(paste(figurespath,'SuppFigs/FitHiC05_FPKMchas.svg',sep='/'))
+#svg(paste(figurespath,'SuppFigs/FitHiC05_FPKMchas.svg',sep='/'))
 plot(colMeans(fithum05netExp_feat),fithum05netExp_chas,   ylab='FPKM ChAs ',  xlab='FPKM mean', ylim=c(0,0.2),xlim=c(0.57, 0.59),  bg='red', main='FitHiC05_GM06990Exp', pch=21)
 points(colMeans(rfithum05netExp_feat[[1]]),rfithum05netExp_chas[[1]], col='grey') 
 for (i in 2:length(rfithum05netExp)){
  points(colMeans(rfithum05netExp_feat[[i]]),rfithum05netExp_chas[[i]], col='grey') 
 }
 abline(h=0)
-dev.off()
+#dev.off()
 
 ```
 
@@ -1520,7 +1479,7 @@ Test randomizations
 net=netbpB_bb
 
 net1 <- subset_chromnet(net, method="chrom", chrom="chr1") 
-nsamples <- 30
+nsamples <- 10
 netr <- chaser::randomize(net1, nrandom=nsamples,
                           dist.match=TRUE)
 ## quantiles of edge distances in randomized networks with dist.match=TRUE
@@ -1544,7 +1503,7 @@ eq <- quantile(e$dist, x )
 
 ```{r}
 
-svg(paste(figurespath,'SuppFigs/real-vs-randomized-quartiles.svg', sep='/'))
+#svg(paste(figurespath,'SuppFigs/real-vs-randomized-quartiles.svg', sep='/'))
 boxplot(log10(mqer), names=x, xlab="Quartile", ylab="Spanned distance (log10)"
        ,border="white", outline=FALSE)
 stripchart(list(log10(mqer[,1]), log10(mqer[,2]),log10(mqer[,3]),
@@ -1554,7 +1513,7 @@ stripchart(list(log10(mqer[,1]), log10(mqer[,2]),log10(mqer[,3]),
 points(log10(eq), col="red", pch=20)
 legend("bottomright", legend=c("measured", "randomized"),
        fill=c("red", "steelblue"))
-dev.off()
+#dev.off()
 
 
 
@@ -1564,13 +1523,13 @@ netras <-unlist( lapply(netr, function(e){
          }))
 netrnmas <- unlist(lapply(netrnm, function(e){chaser::chas(e)["H3K27ac"]}))
 
-svg(paste(figurespath,'SuppFigs/boxplot-Distancesrandom-real.svg', sep='/'))
+#svg(paste(figurespath,'SuppFigs/boxplot-Distancesrandom-real.svg', sep='/'))
 vioplot( netras, netrnmas, ylab="ChAs of H3K27ac on PCHiC PP",
         names=c( "dist.match=T", "dist.match=F"),
         main="assortativity on randomized networks", ylim=c(-0.05,0.3))
 abline(h=0)
 abline(h=net1as, col='red', lwd=3)
-dev.off()
+#dev.off()
 
 
 ```
@@ -1603,22 +1562,23 @@ neunetRTcomp=subset_chromnet(neunetRT, 'complete')
 neunetRTchas=chas(neunetRT)
 neunetRTfeat=export(neunetRT)
 
-rneunetRT=chaser::randomize(neunetRT, nrandom=30, preserve.nodes = NULL,dist.match = T)
+rneunetRT=chaser::randomize(neunetRT, nrandom=nrand, preserve.nodes = NULL,dist.match = T)
 rneunetRTchas=lapply(rneunetRT, chas)
 rneunetRTfeat=lapply(rneunetRT, export)
 
 ```
 
 
+
 ```{r}
-svg(paste(figurespath, 'SuppFigs/PCHIC_Neu_RT.svg', sep='/'))
-plot(colMeans(neunetRTfeat),neunetRTchas,   ylab='ChAs RT ',  xlab='RT mean', ylim=c(0,0.8),xlim=c(1, 2),  bg='red', pch=21, main='Neunet')
+#svg(paste(figurespath, 'SuppFigs/PCHIC_Neu_RT.svg', sep='/'))
+plot(colMeans(neunetRTfeat),neunetRTchas,   ylab='ChAs RT ',  xlab='RT mean', ylim=c(0,0.8),xlim=c(1.2, 1.5),  bg='red', pch=21, main='Neunet')
 for (i in 2:length(rneunetRT)){
  points(colMeans(rneunetRTfeat[[i]]),rneunetRTchas[[i]], col='grey') 
 }
 abline(h=0)
 
-dev.off()
+#dev.off()
 
 ```
 
@@ -1670,18 +1630,18 @@ rfithum05netRTcomp_feat=lapply(rfithum05netRTcomp,export)
 ```
 
 ```{r}
-svg(paste(figurespath, 'SuppFigs/FitHiCGM06690_RT.svg', sep='/'))
+#svg(paste(figurespath, 'SuppFigs/FitHiCGM06690_RT.svg', sep='/'))
 plot(colMeans(fithum05netRTcomp_feat),fithum05netRTcomp_chas,   ylab='ChAs RT ',  xlab='RT mean', ylim=c(0,0.8),xlim=c(-0.6, -0.4),  bg='red', main='FitHiC05_GM06990RT', pch=21)
 for (i in 2:length(rfithum05netRTcomp)){
  points(colMeans(rfithum05netRTcomp_feat[[i]]),rfithum05netRTcomp_chas[[i]], col='grey') 
 }
 abline(h=0)
-dev.off()
+#dev.off()
 
 ```
 
 ```{r}
-write.table(data.frame(rownames(fithum05netRTcomp_feat),fithum05netRTcomp_feat), '/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Figures/revisionfigures/SuppFigs/FitHiC05RT.txt', quote=F, sep='\t', row.names=F)
+#write.table(data.frame(rownames(fithum05netRTcomp_feat),fithum05netRTcomp_feat), '/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/forGARDEN-NET/Figures/revisionfigures/SuppFigs/FitHiC05RT.txt', quote=F, sep='\t', row.names=F)
 
 fithum05RTcorr <- chaser::chas(fithum05netRTcomp, method="corr_fun")
 
@@ -1722,6 +1682,13 @@ for (i in 12:28){
 bpl[[colnames(bp)[i]]]=make_chromnet(bpproc[which(bp[,i]>5),c(1,2,3,6,7,8)])
 }
 
+Gbpl=lapply(bpl, export, type='igraph')
+
+bpnet=make_chromnet(bpproc[,c(1,2,3,6,7,8)])
+baits <- export(bpnet, 'baits')
+nodes=export(bpnet, "nodes")$name
+oes=nodes[-which(nodes %in% baits)]
+
 bpproml=lapply(bpl,function(x){
 
 res= chaser::subset_chromnet(x, method="nodes", nodes1=baits)
@@ -1739,6 +1706,7 @@ return(res)
 })
 
 Gbpl=lapply(bpl, export, type='igraph')
+
 
 Gbpproml=lapply(bpproml, export, type='igraph')
 
@@ -1833,21 +1801,36 @@ bppromNclus[['FitHiC GM06990']]=fithic05Nclus
 
 measlist=list( unlist(bppromdeg),unlist(bppromAVsp), unlist(bppromoedeg),unlist(bppromTrans), unlist(bppromlLCC), unlist(bppromNclus))
 
-names(measlist)=c( 'PP Degree','Average Shortest Path', 'PO P degree','Clustering Coefficient.', '% in Largest CC Component','Number of CCs' )
+#measlist=list( unlist(bppromdeg), unlist(bppromoedeg),unlist(bppromTrans), unlist(bppromlLCC), unlist(bppromNclus))
 
+names(measlist)=c( 'PP Degree','Average Shortest Path', 'PO P degree','Clustering Coefficient.', '% in Largest CC Component','Number of CCs' )
+#names(measlist)=c( 'PP Degree', 'PO P degree','Clustering Coefficient.', '% in Largest CC Component','Number of CCs' )
+
+ 
+```
+
+```{r}
 cols=c(rep('pink', 8),rep( 'lightblue',9), 'grey')
 names(cols)=names(bppromdeg)
- 
 
-svg(paste(figurespath,'Netstats.svg', sep='/'), height=7, width=11)                        
+measlist=list( unlist(bppromdeg),unlist(bppromAVsp), unlist(bppromoedeg),unlist(bppromTrans), unlist(bppromlLCC), unlist(bppromNclus))
+
+#measlist=list( unlist(bppromdeg), unlist(bppromoedeg),unlist(bppromTrans), unlist(bppromlLCC), unlist(bppromNclus))
+
+names(measlist)=c( 'PP Degree','Average Shortest Path', 'PO P degree','Clustering Coefficient.', '% in Largest CC Component','Number of CCs' )
+
+#svg(paste(figurespath,'Netstats_new2.svg', sep='/'), height=7, width=11)                        
 par(mfrow=c(2,3),mar=c(8,2,4,2), oma=c(2,2,2,2) )
 for (i in 1:length(measlist)){
   order=sort(measlist[[i]], index.return=T)$ix
 
   barplot(measlist[[i]][order], las=2, main=names(measlist)[i], cex.names=0.8, col=cols[names(measlist[[i]][order])])
 }
-dev.off()
+#dev.off()
+```
 
+
+```{r}
 
 bpdeg[['FitHiC GM06990']]=fithic05Deg
 bpAVsp[['FitHiC GM06990']]=fithic05AVsp
@@ -1856,29 +1839,36 @@ bpTrans[['FitHiC GM06990']]=fithic05Trans
 bplLCC[['FitHiC GM06990']]=fithic05LCC
 bpNclus[['FitHiC GM06990']]=fithic05Nclus
 
+ 
+
+
+
+```
+
+```{r}
+
 
 measlist=list( unlist(bpdeg),unlist(bpAVsp), unlist(bpTrans), unlist(bplLCC), unlist(bpNclus))
 
 names(measlist)=c( 'Degree','Average Shortest Path', 'Clustering Coefficient.', '% in Largest CC Component','Number of CCs' )
 
+
 cols=c(rep('pink', 8),rep( 'lightblue',9), 'grey')
 names(cols)=names(bpdeg)
- 
 
-svg(paste(figurespath,'NetstatsAll.svg', sep='/'), height=7, width=11)                        
+#svg(paste(figurespath,'NetstatsAll.svg', sep='/'), height=7, width=11)                        
 par(mfrow=c(2,3),mar=c(8,2,4,2), oma=c(2,2,2,2) )
 for (i in 1:length(measlist)){
   order=sort(measlist[[i]], index.return=T)$ix
 
   barplot(measlist[[i]][order], las=2, main=names(measlist)[i], cex.names=1, col=cols[names(measlist[[i]][order])])
 }
-dev.off()
+#dev.off()
 
 
 
 
-bpproml1_mod=cluster_fast_greedy(Gbpproml[[1]], merges = TRUE, modularity = TRUE,
-  membership = F, weights = NULL)
+#bpproml1_mod=cluster_fast_greedy(Gbpproml[[1]], merges = TRUE, modularity = TRUE,  membership = F, weights = NULL)
 
 ```
 
@@ -1920,33 +1910,58 @@ bpnewCS_compchascat=chas(bpnewCS_comp, method='categorical')
 #rbpnewCS=randomize(bpnewCS_comp, 20,preserve.nodes=NULL, distance.match=T)
 load(paste(featurepath,'rbpnewCS.Rdata',sep='/'))
 rbpnewCS_compchascat=lapply(rbpnewCS, chas, method='categorical')
-pdf('catchas.pdf')
-plot(c(1:length(bpnewCS_compchascat)),bpnewCS_compchascat, pch=21, bg='red', ylim=c(0,0.14))
-points(c(1: length(bpnewCS_compchascat)), rbpnewCS_compchascat[[1]])
-for (i in c(2:length(rbpnewCS))){
-points(c(1:length(bpnewCS_compchascat)), rbpnewCS_compchascat[[i]])
-}
-dev.off()
+
 
 rbpnewCS_compchascatfin=as.data.frame(Reduce(rbind, rbpnewCS_compchascat))
 
 rbpnewCS_compchasav=colMeans(rbpnewCS_compchascatfin)
 
 order=sort((bpnewCS_compchascat-rbpnewCS_compchasav),decreasing=T, index.return=T)$ix
+```
 
-svg(paste(figurespath,'Chromstates_chatchas.svg', sep='/'), height=5, width=8)               
+
+```{r}
+#svg(paste(figurespath,'Chromstates_chatchas.svg', sep='/'), height=5, width=8)               
 plot(bpnewCS_compchascat[order], pch=21, bg='red', ylim=c(-0.05,0.14), xlab='', ylab='Categorical ChAs', xaxt='n')
 text( c(1:length(bpnewCS_compchascat)),rep(0.02,length(bpnewCS_compchascat)),labels=gsub('_11_All_cell_types_segments.bed','',names(bpnewCS_compchascat)),cex=0.8, pos=1,offset=0.5, srt=90)
 points(c(1: length(bpnewCS_compchascat)), rbpnewCS_compchascat[[1]][order], col='grey')
 for (i in c(2:length(rbpnewCS))){
 points(c(1:length(bpnewCS_compchascat)), rbpnewCS_compchascat[[i]][order], col='grey')
 }
-dev.off()
-
-
-
+#dev.off()
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
